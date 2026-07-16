@@ -2477,6 +2477,7 @@
             currentPricingGroup = group;
             updateGroupButtonHighlight(group);
             updateAllBanners();
+            localStorage.setItem('findter_pricing_group', group);
 
             // Hide the plan-update banner entirely until the popup has been closed.
             if (pricingNoticeBanner) {

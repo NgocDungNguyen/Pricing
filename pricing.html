@@ -825,9 +825,28 @@ let storeProductCount = 0;
 let customerType = 'new'; // 'new' | 'new_over50k' | 'returning'
 let trialEnded = false;
 let over50k = { active:false, trialStarted:false, count:0, plan:null }; // 'Khách mới > 50k' simulated flow — trial activates immediately, slider always stays draggable
+let regularTrial = { plan:null, active:false }; // trial started via a per-card "Start 14-day trial" button (Khách mới < 50k)
 
 function isOver50kOnTrial(){
   return over50k.active && over50k.trialStarted && !trialEnded;
+}
+
+function isRegularTrialOnTrial(){
+  return regularTrial.active && regularTrial.plan!=null && !trialEnded;
+}
+
+function isHighTierPlan(plan){
+  return PLAN_ORDER.indexOf(plan) >= PLAN_ORDER.indexOf('professional');
+}
+
+/* Compares the store's actual product count against a plan's range:
+   'too_small' = plan can't hold the real catalog, 'oversized' = a costlier/bigger-tier
+   plan than the real catalog currently needs, 'fits' = a sensible match (or count unknown) */
+function planFitStatus(plan){
+  const [lo,hi]=PLAN_COUNT_RANGES[plan];
+  if(storeProductCount>0&&storeProductCount>hi) return 'too_small';
+  if(storeProductCount>0&&isHighTierPlan(plan)&&storeProductCount<lo) return 'oversized';
+  return 'fits';
 }
 
 /* HELPERS */
@@ -980,7 +999,8 @@ function renderSelCard(){
   const isOpen=cardFeatsOpen.sel;
 
   const isBillSwitch=isCurrent&&!isQuote&&billingMode!==USER_BILLING;
-  const onTrial=isCurrent&&displayPlan===over50k.plan&&isOver50kOnTrial();
+  const onTrial=isCurrent&&((displayPlan===over50k.plan&&isOver50kOnTrial())||(displayPlan===regularTrial.plan&&isRegularTrialOnTrial()));
+  const trialEligible=!isQuote&&!isCurrent&&isUp&&customerType==='new'&&USER_PLAN==='free'&&!trialEnded;
   const extraClass=isAnn&&!isQuote?' annual-card':'';
   const showDiscount=!isQuote&&(!isCurrent||onTrial||(isBillSwitch&&billingMode==='annual'));
   const discountLink=showDiscount
@@ -1027,6 +1047,12 @@ function renderSelCard(){
     cta=`<button class="card-cta upgrade" onclick="switchBillingModal('${billingMode}')">Switch to ${lbl}</button>`;
   } else if(isCurrent){
     cta=`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`;
+  } else if(trialEligible){
+    const fit=planFitStatus(displayPlan);
+    const fitNotice=fit==='too_small'
+      ?`<p style="font-size:11px;color:#dc2626;margin-top:6px;text-align:center;line-height:1.4">Your current active product count is higher than this plan's limit.</p>`
+      :'';
+    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"><i class="ti ti-rocket"></i> Start 14-day trial</button>${fitNotice}`;
   } else if(isUp){
     cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>`;
   } else {
@@ -1410,6 +1436,33 @@ function convertTrialToPaid(){
   });
 }
 
+/* "Start 14-day trial" button on a plan card (Khách mới < 50k, trial still available) */
+function startRegularTrial(plan){
+  const fit=planFitStatus(plan);
+  regularTrial={plan:plan,active:true};
+  USER_PLAN=plan;
+  USER_BILLING=billingMode;
+  planExpiresDate=null;
+  trialEnded=false;
+
+  renderDualCards();
+  initCurrentPlanBanner();
+  renderSubBtns();
+  showToast(`14-day trial activated — current plan: ${PLANS[plan].name}!`,'ok');
+
+  if(!chatIsOpen) toggleChat();
+  setTimeout(()=>{
+    chatShowTyping();
+    setTimeout(()=>{
+      chatHideTyping();
+      chatAddMsg(fit==='oversized'
+        ?`Your 14-day free trial on the ${PLANS[plan].name} plan is now active! We noticed your current product count is lower than what this plan is built for — before moving your store to the larger server it needs, we may follow up to confirm you'd like to go ahead.`
+        :`Your 14-day free trial on the ${PLANS[plan].name} plan is now active! 🎉 You're all set to start exploring.`,
+        'bot');
+    },900);
+  },300);
+}
+
 function applyPlanChange(targetPlan){
   const selIdx=PLAN_ORDER.indexOf(targetPlan);
   const curIdx=PLAN_ORDER.indexOf(USER_PLAN);
@@ -1506,6 +1559,7 @@ function setCustomerType(type){
   customerType=type;
   trialEnded=false;
   over50k={active:false,trialStarted:false,count:0,plan:null};
+  regularTrial={plan:null,active:false};
   document.getElementById('ctype-new-over50k').classList.toggle('active',type==='new_over50k');
   document.getElementById('ctype-new').classList.toggle('active',type==='new');
   document.getElementById('ctype-old').classList.toggle('active',type==='returning');
@@ -1543,6 +1597,7 @@ function endPlan(){
   planExpiresDate=null;
   trialEnded=true;
   over50k={active:false,trialStarted:false,count:0,plan:null};
+  regularTrial={plan:null,active:false};
   renderDualCards();
   initCurrentPlanBanner();
   renderSubBtns();
@@ -1845,10 +1900,40 @@ renderSubBtns();
   if(el) el.textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
 })();
 (function(){
-  // Arriving from Homepage's "Group 3 > 50k" notice modal ("Start 14d trial" button)
+  // Arriving from the Homepage's Indexing banner "Activate Free Trial" button
   // lands here already in the Khách mới > 50k trial-active state.
   const params=new URLSearchParams(window.location.search);
-  if(params.get('ctype')==='new_over50k') setCustomerType('new_over50k');
+  if(params.get('ctype')==='new_over50k'){
+    setCustomerType('new_over50k');
+    return;
+  }
+
+  // Arriving directly (sidebar "Pricing" link) while Group 3 </>50k was selected on the
+  // Homepage: pre-fill a representative store product count so the "Start 14-day trial"
+  // buttons on each plan card already reflect a realistic fit (case 1.1/1.2/1.3), without
+  // forcing any plan or auto-activating a trial.
+  const group=localStorage.getItem('findter_pricing_group');
+  if(group==='group3'||group==='group3plus'){
+    localStorage.removeItem('findter_pricing_group');
+    const n=group==='group3plus'
+      ?50001+Math.floor(Math.random()*(199999-50001+1))
+      :500+Math.floor(Math.random()*(49999-500+1));
+    storeProductCount=n;
+    localStorage.setItem(STORE_COUNT_KEY,String(n));
+    const inp=document.getElementById('opt-store-count');
+    if(inp) inp.value=n;
+    const pos=posForCount(n);
+    const slider=document.getElementById('prod-slider');
+    if(slider){slider.value=pos;onSlide(pos);}
+    const tick=document.getElementById('store-tick');
+    if(tick){tick.style.left=pos+'%';tick.style.display='block';}
+    const tickLbl=document.getElementById('store-tick-lbl');
+    const tickRow=document.getElementById('store-lbl-row');
+    if(tickLbl) tickLbl.style.left=pos+'%';
+    if(tickRow) tickRow.style.display='block';
+    renderDualCards();
+    initCurrentPlanBanner();
+  }
 })();
 </script>
 
