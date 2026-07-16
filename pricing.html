@@ -133,6 +133,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 
 /* -- CARD ACTION BUTTON -- */
 .card-cta{width:100%;margin-top:.9rem;padding:9px;font-size:12.5px;font-weight:600;border-radius:var(--r);cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid transparent;transition:all .15s}
+.card-cta:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
 .card-cta.upgrade{background:var(--teal);color:#fff;border-color:var(--teal)}
 .card-cta.upgrade:hover{background:var(--teal-dk);border-color:var(--teal-dk)}
 .card-cta.downgrade{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
@@ -607,6 +608,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
       <span class="modal-title-txt">Discount code</span>
       <button class="modal-close-btn" onclick="closeDiscModal()">&times;</button>
     </div>
+    <div id="disc-trial-notice"></div>
     <div style="margin-bottom:1rem">
       <div class="discount-row">
         <input class="discount-input" id="disc-code-input" type="text" placeholder="Enter your code..." style="text-transform:uppercase" onkeydown="if(event.key==='Enter')applyCardDiscount()"/>
@@ -841,6 +843,20 @@ function isCurrentPlanOnTrial(){
   return (isOver50kOnTrial()&&USER_PLAN===over50k.plan) || (isRegularTrialOnTrial()&&USER_PLAN===regularTrial.plan);
 }
 
+/* Days left on the customer's currently active, unconverted trial — null if not on trial */
+function getTrialDaysLeft(){
+  if(!isCurrentPlanOnTrial()) return null;
+  const trialEnd=new Date();trialEnd.setDate(trialEnd.getDate()+14);
+  const msLeft=trialEnd-new Date();
+  return Math.max(0,Math.ceil(msLeft/(1000*60*60*24)));
+}
+
+function trialDaysLeftNoticeHTML(){
+  const days=getTrialDaysLeft();
+  if(days==null) return '';
+  return `<p style="font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r);padding:7px 10px;margin-top:.6rem;display:flex;align-items:center;gap:6px"><i class="ti ti-clock"></i> Trial expires in ${days} day${days===1?'':'s'}</p>`;
+}
+
 function isHighTierPlan(plan){
   return PLAN_ORDER.indexOf(plan) >= PLAN_ORDER.indexOf('professional');
 }
@@ -1055,14 +1071,20 @@ function renderSelCard(){
     cta=`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`;
   } else if(trialEligible){
     const fit=planFitStatus(displayPlan);
-    const fitNotice=fit==='too_small'
+    const tooSmall=fit==='too_small';
+    const fitNotice=tooSmall
       ?`<p style="font-size:11px;color:#dc2626;margin-top:6px;text-align:center;line-height:1.4">Your current active product count is higher than this plan's limit.</p>`
       :'';
-    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"><i class="ti ti-rocket"></i> Start 14-day trial</button>${fitNotice}`;
+    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-rocket"></i> Start 14-day trial</button>${fitNotice}`;
   } else if(isUp){
     cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>`;
   } else {
-    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>`;
+    const fit=planFitStatus(displayPlan);
+    const tooSmall=fit==='too_small';
+    const fitNotice=tooSmall
+      ?`<p style="font-size:11px;color:#dc2626;margin-top:6px;text-align:center;line-height:1.4">Your current active product count is higher than this plan's limit.</p>`
+      :'';
+    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>${fitNotice}`;
   }
 
   return `
@@ -1406,7 +1428,7 @@ function openPlanModal(targetPlan){
           <span style="font-size:13px;font-weight:600;color:var(--txt)">Total</span>
           <span style="font-size:18px;font-weight:700;color:var(--txt)">$${raw.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
         </div>
-      </div>${trial}`;
+      </div>${trial}${trialDaysLeftNoticeHTML()}`;
     openModal(`Upgrade to ${toP.name}`,body,'Process to Payment →',false,()=>applyPlanChange(targetPlan));
   } else {
     const note='<p>Your current plan stays active until the end of the billing period.</p>';
@@ -1435,7 +1457,7 @@ function convertTrialToPaid(){
         <span style="font-size:18px;font-weight:700;color:var(--txt)">$${raw.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ You'll be charged today and continue on the ${toP.name} plan right away — no need to wait for your trial to end.</p>`;
+    <p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ You'll be charged today and continue on the ${toP.name} plan right away — no need to wait for your trial to end.</p>${trialDaysLeftNoticeHTML()}`;
   openModal(`Upgrade to ${toP.name}`,body,'Process to Payment →',false,()=>{
     trialEnded=true;
     applyPlanChange(plan);
@@ -1840,6 +1862,8 @@ function openDiscountModal(plan){
   if(btn){btn.textContent='Process to Payment →';btn.onclick=processDiscPayment;}
   const actions=document.getElementById('disc-modal-actions');
   if(actions) actions.style.display='none';
+  const trialNotice=document.getElementById('disc-trial-notice');
+  if(trialNotice) trialNotice.innerHTML=trialDaysLeftNoticeHTML();
   document.getElementById('disc-modal').style.display='flex';
   setTimeout(()=>{if(input)input.focus();},60);
 }
