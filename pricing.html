@@ -1581,6 +1581,25 @@ function activateOver50kFlow(){
   initCurrentPlanBanner();
   renderSubBtns();
   showToast(`14-day trial activated — current plan: ${PLANS[over50k.plan].name}!`,'ok');
+
+  announceServerMigration();
+}
+
+/* Auto chat sequence letting the user know their store is being moved to a server sized for their catalog */
+function announceServerMigration(){
+  setTimeout(()=>{
+    if(!chatIsOpen) toggleChat();
+    chatShowTyping();
+    setTimeout(()=>{
+      chatHideTyping();
+      chatAddMsg("Welcome aboard! 🎉 Your 14-day free trial is now active. Since your catalog is over 50,000 products, we're moving your store to a higher-capacity server so everything stays fast — hang tight one moment.",'bot');
+      chatShowTyping();
+      setTimeout(()=>{
+        chatHideTyping();
+        chatAddMsg("All set! ✅ Your store is now running on the upgraded server and indexing should be fast and smooth from here on out.",'bot');
+      },2200);
+    },900);
+  },1500);
 }
 
 /* OPTIONS BAR */
