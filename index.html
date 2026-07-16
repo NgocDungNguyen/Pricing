@@ -862,35 +862,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Group 3 > 50k Notice Popup -->
-    <div id="group3plus-modal" class="modal-wrapper fixed inset-0 hidden">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="group3plus-modal-overlay"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md pointer-events-auto relative modal-content">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                            <i class="fas fa-info-circle text-lg"></i>
-                        </div>
-                        <h3 class="text-[16px] font-semibold text-[#303030]">Notice</h3>
-                    </div>
-                    <button type="button" id="group3plus-modal-close-btn" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
-                        <i class="fas fa-times text-lg"></i>
-                    </button>
-                </div>
-                <div class="px-6 py-5">
-                    <p class="text-[13px] text-[#303030] leading-relaxed">This user segment will still receive a 14-day free trial, but will need a separate flow of their own. Click <strong>"Start 14d trial"</strong> below to activate their trial and go to the Pricing page.</p>
-                </div>
-                <div class="flex items-center justify-end px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                    <button type="button" id="group3plus-modal-pricing-btn" class="bg-[#303030] text-white rounded-[6px] px-5 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors flex items-center gap-2">
-                        <i class="fas fa-rocket text-xs"></i>
-                        Start 14d trial
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         
@@ -1130,6 +1101,26 @@
             '</div>';
         }
 
+        function getOver50kUpgradeBannerHTML() {
+            return '<div class="unified-status-banner complete-state rounded-lg p-4 border border-amber-300">' +
+                '<div class="flex items-start gap-3">' +
+                    '<div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0 mt-0.5">' +
+                        '<i class="fas fa-box-open text-sm"></i>' +
+                    '</div>' +
+                    '<div class="flex-1">' +
+                        '<p class="text-[14px] font-semibold text-amber-800 mb-1">Your store has over 50,000 products</p>' +
+                        '<p class="text-[13px] text-amber-700 leading-relaxed mb-3">' +
+                            'To keep Findter running smoothly with a catalog this size, please upgrade your current plan or activate a free 14-day trial.' +
+                        '</p>' +
+                        '<button onclick="window.location.href=\'pricing.html?ctype=new_over50k\'" class="bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors shadow-sm inline-flex items-center gap-2">' +
+                            '<i class="fas fa-rocket text-xs"></i>' +
+                            'Activate Trial' +
+                        '</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }
+
         // ========== UPDATE ALL BANNERS ==========
         function updateAllBanners() {
             var bannerHTML = '';
@@ -1137,6 +1128,8 @@
 
             if (!AppState.indexingComplete) {
                 bannerHTML = getSimpleIndexingBannerHTML();
+            } else if (currentPricingGroup === 'group3plus') {
+                bannerHTML = getOver50kUpgradeBannerHTML();
             } else if (!AppState.firstEnableDone) {
                 bannerHTML = getFirstTimeCompleteBannerHTML();
             } else {
@@ -2171,11 +2164,6 @@
         var group3OverBtn = document.getElementById('group-3-over-btn');
         var mainScrollArea = document.getElementById('main-scroll-area');
 
-        var group3plusModal = document.getElementById('group3plus-modal');
-        var group3plusModalOverlay = document.getElementById('group3plus-modal-overlay');
-        var group3plusModalCloseBtn = document.getElementById('group3plus-modal-close-btn');
-        var group3plusModalPricingBtn = document.getElementById('group3plus-modal-pricing-btn');
-
         var pricingPopupModal = document.getElementById('pricing-popup-modal');
         var pricingPopupOverlay = document.getElementById('pricing-popup-overlay');
         var pricingPopupCloseBtn = document.getElementById('pricing-popup-close-btn');
@@ -2485,74 +2473,10 @@
             document.removeEventListener('click', handleFirstPageInteraction);
         }
 
-        // ========== GROUP 3 > 50K NOTICE POPUP (fires on first scroll or click) ==========
-        var hasShownGroup3PlusPopup = true;
-
-        function showGroup3PlusModal() {
-            if (!group3plusModal) return;
-            group3plusModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeGroup3PlusModal() {
-            if (!group3plusModal) return;
-            group3plusModal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        function handleGroup3PlusInteraction(e) {
-            if (e && e.target && e.target.closest && e.target.closest(GROUP_BTN_SELECTOR)) {
-                return;
-            }
-            if (hasShownGroup3PlusPopup) return;
-            hasShownGroup3PlusPopup = true;
-            if (mainScrollArea) mainScrollArea.removeEventListener('scroll', handleGroup3PlusInteraction);
-            document.removeEventListener('click', handleGroup3PlusInteraction);
-            showGroup3PlusModal();
-        }
-
-        function armGroup3PlusTrigger() {
-            hasShownGroup3PlusPopup = false;
-            if (mainScrollArea) mainScrollArea.addEventListener('scroll', handleGroup3PlusInteraction, { passive: true });
-            document.addEventListener('click', handleGroup3PlusInteraction);
-        }
-
-        function disarmGroup3PlusTrigger() {
-            hasShownGroup3PlusPopup = true;
-            if (mainScrollArea) mainScrollArea.removeEventListener('scroll', handleGroup3PlusInteraction);
-            document.removeEventListener('click', handleGroup3PlusInteraction);
-            closeGroup3PlusModal();
-        }
-
-        if (group3plusModalCloseBtn) group3plusModalCloseBtn.addEventListener('click', closeGroup3PlusModal);
-        if (group3plusModalOverlay) group3plusModalOverlay.addEventListener('click', closeGroup3PlusModal);
-        if (group3plusModalPricingBtn) {
-            group3plusModalPricingBtn.addEventListener('click', function() {
-                window.location.href = 'pricing.html?ctype=new_over50k';
-            });
-        }
-
-        function activateGroup3PlusFlow() {
-            currentPricingGroup = 'group3plus';
-            updateGroupButtonHighlight('group3plus');
-
-            disarmPricingPopupTrigger();
-            hideBanner(pricingNoticeBanner);
-            hideBanner(document.getElementById('almost-limit-banner'));
-            hideBanner(document.getElementById('limit-reached-banner'));
-
-            if (pricingPopupModal) {
-                pricingPopupModal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-
-            armGroup3PlusTrigger();
-        }
-
         function resetPricingFlowState(group) {
             currentPricingGroup = group;
             updateGroupButtonHighlight(group);
-            disarmGroup3PlusTrigger();
+            updateAllBanners();
 
             // Hide the plan-update banner entirely until the popup has been closed.
             if (pricingNoticeBanner) {
@@ -2583,7 +2507,7 @@
                 document.body.style.overflow = '';
             }
 
-            if (group === 'group3') {
+            if (group === 'group3' || group === 'group3plus') {
                 disarmPricingPopupTrigger();
             } else {
                 armPricingPopupTrigger();
@@ -2593,7 +2517,7 @@
         if (group1Btn) group1Btn.addEventListener('click', function() { resetPricingFlowState('group1'); });
         if (group2Btn) group2Btn.addEventListener('click', function() { resetPricingFlowState('group2'); });
         if (group3Btn) group3Btn.addEventListener('click', function() { resetPricingFlowState('group3'); });
-        if (group3OverBtn) group3OverBtn.addEventListener('click', activateGroup3PlusFlow);
+        if (group3OverBtn) group3OverBtn.addEventListener('click', function() { resetPricingFlowState('group3plus'); });
 
         if (pricingPopupCloseBtn) pricingPopupCloseBtn.addEventListener('click', closePricingPopup);
         if (pricingPopupOverlay) pricingPopupOverlay.addEventListener('click', closePricingPopup);
