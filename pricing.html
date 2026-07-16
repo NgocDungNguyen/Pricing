@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Findter Pricing</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --txt:#111827;--txt2:#374151;--muted:#9ca3af;
+  --s1:#f9fafb;--s2:#ffffff;
+  --bdr:#e5e7eb;--bdr2:#d1d5db;
+  --r:8px;
+  --teal:#0d9488;--teal-dk:#0f766e;--teal-lt:#ccfbf1;--teal-pl:#f0fdf9;
+  --grn:#f0fdf4;
+  --amb:#fffbeb;--amb-bdr:#fcd34d;--amb-txt:#92400e;
+}
+html,body{font-family:var(--font);background:#f3f4f6;color:var(--txt);min-height:100vh}
+
+/* PAGE */
+.wrap{max-width:1060px;margin:0 auto;padding:2rem 1.25rem 3rem}
+.pg-title{font-size:18px;font-weight:600;margin-bottom:.2rem}
+.pg-sub{font-size:13px;color:var(--txt2);margin-bottom:1rem}
+
+/* OPTIONS BAR */
+.opts-bar{background:var(--s1);border:1.5px solid var(--bdr);border-radius:var(--r);padding:8px 14px;margin-bottom:1.1rem;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.opts-bar-label{font-size:10.5px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
+.opts-bar-field{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--txt2)}
+.opts-bar-field label{white-space:nowrap;font-weight:500}
+.opts-bar-field input[type=number]{padding:5px 9px;border:1.5px solid var(--bdr2);border-radius:6px;font-size:12.5px;font-family:var(--font);color:var(--txt);background:var(--s2);width:130px;outline:none;appearance:textfield;-moz-appearance:textfield}
+.opts-bar-field input[type=number]::-webkit-outer-spin-button,.opts-bar-field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;appearance:none;margin:0}
+.opts-bar-field input[type=number]:focus{border-color:var(--teal)}
+.ctype-btn{padding:5px 13px;font-size:11.5px;font-weight:600;border-radius:999px;border:1.5px solid var(--bdr2);background:var(--s2);cursor:pointer;color:var(--txt2);font-family:var(--font);transition:all .15s;white-space:nowrap}
+.ctype-btn.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.ctype-btn:not(.active):hover{background:var(--bdr)}
+.ctype-sub-btn{padding:3px 10px;font-size:10.5px;font-weight:600;border-radius:999px;border:1.5px solid var(--bdr2);background:var(--s2);cursor:pointer;color:var(--txt2);font-family:var(--font);transition:all .15s;white-space:nowrap}
+.ctype-sub-btn:hover{background:var(--bdr)}
+.ctype-sub-btn.warn{border-color:#fed7aa;color:#c2410c;background:#fff7ed}
+.ctype-sub-btn.warn:hover{background:#ffedd5}
+
+/* LAYOUT */
+.root{display:grid;grid-template-columns:1fr 288px;gap:1.25rem;align-items:start}
+@media(max-width:760px){.root{grid-template-columns:1fr}}
+
+/* -- TABS -- */
+.tab-nav{display:flex;gap:4px;margin-bottom:1.25rem;background:var(--s1);border:1.5px solid var(--bdr);border-radius:999px;padding:4px;width:fit-content}
+.tab-btn{padding:7px 20px;font-size:13px;font-weight:500;border-radius:999px;border:none;background:transparent;cursor:pointer;font-family:var(--font);color:var(--txt2);transition:all .15s;white-space:nowrap}
+.tab-btn.active{background:var(--teal);color:#fff}
+
+/* -- SLIDER SECTION -- */
+.slider-section{background:var(--s2);border:1.5px solid var(--bdr);border-radius:14px;padding:1.25rem 1.5rem 1.4rem;margin-bottom:1.25rem}
+.slider-label{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:1.1rem}
+.slider-wrap{position:relative;padding-top:36px;padding-bottom:0;margin-bottom:4px}
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:var(--bdr);outline:none;cursor:pointer;position:relative;z-index:3;display:block}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--teal);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.22);cursor:pointer;transition:transform .12s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--teal);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.22);cursor:pointer}
+
+.track-fill{position:absolute;height:6px;left:0;top:calc(36px + 8px);border-radius:999px;background:var(--teal);pointer-events:none;z-index:1;transition:width .04s}
+
+.count-pill{position:absolute;top:0;transform:translateX(-50%);background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;pointer-events:none;box-shadow:0 2px 6px rgba(13,148,136,.35);z-index:10;transition:left .04s;line-height:1.4}
+.count-pill::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--teal);border-bottom:none}
+
+.milestones{position:relative;height:36px;margin-top:6px}
+.ms-dot{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px}
+.ms-circle{width:8px;height:8px;border-radius:50%;background:var(--bdr2);border:2px solid var(--s2);transition:background .2s,transform .2s}
+.ms-circle.lit{background:var(--teal);transform:scale(1.25)}
+.ms-lbl{font-size:9px;color:var(--muted);white-space:nowrap;font-weight:500;text-align:center}
+.milestones .ms-dot:last-child{transform:translateX(-50%)}
+
+
+/* -- DUAL PLAN CARDS (CSS subgrid for cross-card alignment) -- */
+.dual-cards{display:grid;grid-template-columns:1fr 1fr;column-gap:12px;row-gap:0;margin-bottom:1.25rem;grid-template-rows:repeat(5,auto)}
+
+.plan-card{border:1.5px solid var(--bdr);border-radius:12px;padding:0 1.1rem;background:var(--s2);position:relative;transition:border-color .15s,box-shadow .15s;display:grid;grid-row:1/6;grid-template-rows:subgrid;overflow:visible}
+.plan-card.annual-card{border-color:var(--teal);box-shadow:0 0 0 3px rgba(204,251,241,.4);background:linear-gradient(160deg,#f0fdf9 0%,#ffffff 60%)}
+.plan-card.free-card{border-color:var(--bdr2);background:var(--s1)}
+.plan-card.empty-card{display:flex;align-items:center;justify-content:center;min-height:240px;background:var(--s1);border-style:dashed;border-color:var(--bdr2)}
+
+/* section wrappers — each is one subgrid row (5 rows total) */
+.pc-top-area{padding-top:1rem;display:flex;align-items:center;justify-content:center;min-height:38px}
+.pc-head{display:flex;justify-content:space-between;align-items:flex-start;padding:.3rem 0 .55rem}
+.pc-limit-wrap{padding:.1rem 0 .65rem}
+.pc-cta-area{padding-bottom:1.1rem}
+
+/* overlay "Current plan" badge on card border */
+.plan-current-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--teal);color:#fff;font-size:10px;font-weight:700;padding:3px 14px;border-radius:999px;white-space:nowrap;z-index:10;box-shadow:0 2px 8px rgba(13,148,136,.35);pointer-events:none;letter-spacing:.02em}
+
+/* mobile: collapse subgrid to single-column stacked cards */
+@media(max-width:520px){
+  .dual-cards{grid-template-columns:1fr;grid-template-rows:unset}
+  .plan-card{grid-row:auto;display:flex;flex-direction:column;padding:1.1rem}
+  .pc-top-area{padding-top:0}
+  .pc-cta-area{padding-bottom:0}
+}
+.pc-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pc-name{font-size:15px;font-weight:700;color:var(--txt)}
+.pc-name-wrap{display:flex;flex-direction:column;gap:5px}
+.pc-plan-pill{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 9px;border-radius:999px;width:fit-content}
+.pill-popular{background:var(--teal-lt);color:var(--teal-dk);border:1px solid #a7f3d0}
+.pill-large{background:Ư#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.pill-massive{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.pill-custom{background:#fdf4ff;color:#86198f;border:1px solid #f0abfc}
+.pc-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:999px}
+.badge-free   {background:#f3f4f6;color:#6b7280;border:1px solid var(--bdr)}
+.badge-starter{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.badge-popular{background:var(--teal-lt);color:var(--teal-dk)}
+.badge-pro    {background:#ede9fe;color:#6d28d9}
+.badge-ent    {background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.badge-quote  {background:#fdf4ff;color:#86198f;border:1px solid #f0abfc}
+
+.pc-price-block{text-align:right;flex-shrink:0}
+.pc-price-main{font-size:20px;font-weight:700;color:var(--txt);line-height:1.1}
+.pc-price-unit{font-size:11px;font-weight:400;color:var(--muted);vertical-align:middle;margin-left:1px}
+.pc-price-was{font-size:10px;color:var(--muted);text-decoration:line-through;margin-top:2px}
+.pc-price-save{font-size:9px;font-weight:600;color:var(--teal-dk);margin-top:1px}
+
+.pc-limit{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--teal-dk);background:var(--teal-lt);border:1px solid #a7f3d0;border-radius:var(--r);padding:7px 12px;margin-bottom:.75rem;width:100%;box-sizing:border-box}
+.pc-limit i{font-size:15px;flex-shrink:0}
+.pc-desc{font-size:11.5px;color:var(--txt2);line-height:1.45;margin-bottom:.75rem}
+.pc-features{list-style:none;margin-top:auto}
+.pc-features li{font-size:11.5px;color:var(--txt2);display:flex;align-items:flex-start;gap:5px;padding:2.5px 0;line-height:1.35}
+.pc-features li i{font-size:12px;margin-top:1px;flex-shrink:0}
+.fi-ok{color:var(--teal)}.fi-no{color:var(--bdr2)}.fi-no-txt{color:var(--muted)}
+
+.quote-card{background:linear-gradient(135deg,#fdf4ff 0%,#f5f3ff 100%) !important;border-color:#e9d5ff !important;box-shadow:none !important}
+
+/* -- TRIAL RIBBON (absolute overlay top-right of card) -- */
+.trial-ribbon{position:absolute;top:-11px;right:14px;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#fff;background:var(--teal);border-radius:999px;padding:3px 10px;white-space:nowrap;z-index:10;box-shadow:0 2px 6px rgba(13,148,136,.3);pointer-events:none}
+
+/* -- CARD ACTION BUTTON -- */
+.card-cta{width:100%;margin-top:.9rem;padding:9px;font-size:12.5px;font-weight:600;border-radius:var(--r);cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid transparent;transition:all .15s}
+.card-cta.upgrade{background:var(--teal);color:#fff;border-color:var(--teal)}
+.card-cta.upgrade:hover{background:var(--teal-dk);border-color:var(--teal-dk)}
+.card-cta.downgrade{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+.card-cta.downgrade:hover{background:#ffedd5}
+.card-cta.noop{background:var(--s1);color:var(--muted);border-color:var(--bdr);cursor:default}
+
+/* -- IN-CARD BILLING TOGGLE -- */
+.card-billing-inner{display:flex;border:1.5px solid var(--bdr);border-radius:999px;overflow:hidden;background:var(--s2)}
+.card-bill-tab{padding:4px 13px;font-size:11px;font-weight:600;border:none;background:transparent;cursor:pointer;font-family:var(--font);color:var(--txt2);transition:background .15s,color .15s;white-space:nowrap;line-height:1.5}
+.card-bill-tab.active{background:var(--teal);color:#fff}
+.card-bill-save{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:999px;padding:1px 5px;font-size:8.5px;font-weight:700;margin-left:3px}
+
+/* -- FEATURE COLLAPSE -- */
+.feat-collapse{margin-bottom:0}
+.feat-collapse-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 11px;cursor:pointer;font-size:12px;font-weight:500;color:var(--txt2);font-family:var(--font);transition:background .1s;text-align:left}
+.feat-collapse-toggle:hover{background:var(--bdr)}
+.feat-collapse-toggle i.fc-arrow{font-size:13px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.feat-collapse-toggle.open i.fc-arrow{transform:rotate(180deg)}
+.feat-collapse-body{overflow:hidden;max-height:0;transition:max-height .26s ease}
+.feat-collapse-body.open{max-height:300px}
+.feat-collapse-list{padding:8px 11px 4px;display:flex;flex-direction:column;gap:4px}
+.feat-collapse-item{font-size:11.5px;color:var(--txt2);display:flex;align-items:flex-start;gap:6px;line-height:1.4}
+.feat-collapse-item i{font-size:11px;margin-top:1px;flex-shrink:0;color:var(--teal)}
+
+/* -- ADDON SECTION -- */
+.addon-section{border:1.5px solid var(--bdr);border-radius:12px;overflow:hidden;background:var(--s2);margin-bottom:1.25rem}
+.addon-head{padding:11px 16px;background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
+.addon-head-left{display:flex;align-items:center;gap:10px}
+.addon-head-left>i{font-size:17px;color:var(--txt2);flex-shrink:0}
+.addon-title{font-size:13px;font-weight:600;color:var(--txt)}
+.addon-sub{font-size:11px;color:var(--muted);margin-top:1px}
+
+.feat-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bdr);gap:12px;cursor:pointer;transition:background .1s;user-select:none}
+.feat-row:last-child{border-bottom:none}
+.feat-row:hover{background:var(--s1)}
+.feat-row.toggled{background:var(--grn)}
+
+.tog{width:34px;height:19px;border-radius:999px;border:none;cursor:pointer;position:relative;transition:background .18s;flex-shrink:0;background:var(--bdr2)}
+.tog.on{background:var(--teal)}
+.tog::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .18s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.tog.on::after{left:18px}
+
+.fi-info{flex:1;min-width:0}
+.fi-name{font-size:13px;color:var(--txt);line-height:1.3}
+.fi-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}
+.fi-right{text-align:right;flex-shrink:0}
+.fi-price{font-size:13px;font-weight:500;color:var(--txt)}
+.fi-price.on-px{color:var(--teal-dk)}
+.fi-cad{font-size:11px;color:var(--muted)}
+
+/* -- SUMMARY CARD -- */
+.sum-card{border:1px solid var(--bdr);border-radius:12px;background:var(--s2);overflow:hidden;position:sticky;top:1.5rem}
+.sum-head{padding:13px 15px;border-bottom:1px solid var(--bdr);background:var(--s1)}
+.sum-head-title{font-size:14px;font-weight:600;color:var(--txt)}
+.sum-body{padding:14px 15px}
+.sum-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.sum-up-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--r);border:1.5px solid #99f6e4;background:var(--teal-pl);margin-bottom:6px}
+.sum-up-name{font-size:13px;font-weight:500;color:var(--teal-dk)}
+.sum-up-px{font-size:13px;font-weight:500;color:var(--teal-dk)}
+.sum-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0}
+.sum-line-n{color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.sum-line-v{color:var(--txt);font-weight:500;flex-shrink:0}
+.sum-empty{font-size:12px;color:var(--muted);font-style:italic;padding:4px 0}
+
+.sum-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:11px;border-top:1px solid var(--bdr)}
+.sum-total-lbl{font-size:14px;font-weight:600;color:var(--txt)}
+.sum-total-val{font-size:20px;font-weight:600;color:var(--txt)}
+.sum-total-val span{font-size:12px;font-weight:400;color:var(--muted)}
+
+.sub-btn{margin-top:11px;width:100%;padding:10px;font-size:14px;font-weight:500;border-radius:var(--r);border:none;background:var(--teal);color:#fff;cursor:pointer;font-family:var(--font);transition:background .15s}
+.sub-btn:hover:not(.free-state):not(.sub-btn-downgrade){background:var(--teal-dk)}
+.sub-btn.free-state{background:var(--s1);color:var(--muted);border:1px solid var(--bdr);cursor:default}
+.sub-btn.quote-state{background:#7c3aed;color:#fff}
+.sub-btn.quote-state:hover{background:#6d28d9}
+.sub-btn.sub-btn-downgrade{background:#fff7ed;color:#c2410c;border:1.5px solid #fed7aa}
+.sub-btn.sub-btn-downgrade:hover{background:#ffedd5}
+
+.lim-bar{margin-top:12px;padding:9px 11px;background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr)}
+.lim-bar-lbl{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.lim-track{height:5px;border-radius:999px;background:var(--bdr);overflow:hidden}
+.lim-fill{height:100%;background:var(--teal);border-radius:999px;transition:width .4s ease}
+.lim-meta{display:flex;justify-content:space-between;margin-top:5px}
+.lim-meta span{font-size:10px;color:var(--muted)}
+.lim-meta strong{font-size:10px;font-weight:600;color:var(--teal-dk)}
+
+/* -- CURRENT PLAN BANNER -- */
+.cur-banner{display:flex;flex-direction:column;gap:10px;padding:12px 16px;border:1.5px solid var(--teal);border-radius:12px;background:var(--teal-pl);margin-bottom:1.25rem}
+.cur-banner-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cur-banner-left{display:flex;align-items:center;gap:10px}
+.cur-banner-left>i{font-size:20px;color:var(--teal);flex-shrink:0}
+.cur-banner-plan{font-size:13px;color:var(--txt);line-height:1.3}
+.cur-banner-expiry{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);margin-top:3px}
+.cur-banner-expiry i{font-size:12px;flex-shrink:0}
+.cur-banner-badge{font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--teal);color:#fff;flex-shrink:0}
+.cur-banner-lim{margin-top:2px}
+.cur-banner-lim-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.cur-banner-lim-hdr span{font-size:11px;color:var(--muted);font-weight:500}
+.cur-banner-lim-hdr strong{font-size:11px;font-weight:600;color:var(--teal-dk)}
+
+/* -- CARD DISCOUNT LINK -- */
+.card-discount-link{display:block;text-align:center;font-size:11.5px;color:var(--muted);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:var(--font);padding:8px 0 0;width:100%;transition:color .12s}
+.card-discount-link:hover{color:var(--txt2)}
+
+/* -- DETECT -- */
+.detect-wrap{margin-top:.75rem;margin-bottom:.65rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.detect-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;font-size:12px;font-weight:500;border-radius:var(--r);border:1.5px solid var(--bdr2);background:var(--s1);cursor:pointer;color:var(--txt2);font-family:var(--font);transition:all .15s}
+.detect-btn:hover{background:var(--bdr);border-color:var(--txt2)}
+.detect-result{font-size:12px;color:var(--teal-dk);font-weight:500}
+
+/* -- STORE MARKER -- */
+.store-tick{position:absolute;top:calc(36px - 5px);width:2.5px;height:28px;background:#f59e0b;border-radius:2px;pointer-events:none;z-index:6;transform:translateX(-50%);display:none}
+.store-lbl-row{position:relative;height:16px;margin-top:5px}
+.store-tick-lbl{position:absolute;top:0;font-size:11px;font-weight:700;color:#b45309;white-space:nowrap;pointer-events:none;z-index:6;transform:translateX(-50%)}
+
+/* -- TOTAL BREAKDOWN -- */
+.total-toggle{background:none;border:none;cursor:pointer;padding:0 3px;color:var(--muted);font-family:var(--font);vertical-align:middle;line-height:1}
+.total-toggle i{display:inline-block;font-size:13px;transition:transform .2s}
+.total-toggle.open i{transform:rotate(180deg)}
+.total-breakdown{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r);padding:9px 11px;margin-top:6px;font-size:11.5px}
+.bd-line{display:flex;justify-content:space-between;align-items:baseline;padding:2.5px 0;color:var(--txt2)}
+.bd-line>span:last-child{font-weight:500;color:var(--txt);flex-shrink:0}
+.bd-divider{height:1px;background:var(--bdr2);margin:6px 0}
+.bd-original>span:first-child{color:var(--muted)}
+.bd-original>span:last-child{text-decoration:line-through;color:var(--muted);font-weight:400}
+.bd-discount>span:first-child{color:var(--teal-dk);font-weight:600}
+.bd-discount>span:last-child{color:var(--teal-dk);font-weight:700}
+
+/* -- DISCOUNT CODE -- */
+.discount-wrap{margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)}
+.discount-row{display:flex;gap:6px;margin-top:6px}
+.discount-input{flex:1;padding:7px 10px;font-size:12px;border:1.5px solid var(--bdr2);border-radius:var(--r);outline:none;font-family:var(--font);color:var(--txt);background:var(--s2);transition:border-color .15s}
+.discount-input:focus{border-color:var(--teal)}
+.discount-input::placeholder{color:var(--muted)}
+.discount-apply{padding:7px 12px;font-size:12px;font-weight:500;border-radius:var(--r);border:1.5px solid var(--bdr2);background:var(--s1);cursor:pointer;color:var(--txt2);font-family:var(--font);transition:all .15s;white-space:nowrap}
+.discount-apply:hover{background:var(--bdr)}
+.discount-msg{font-size:11px;margin-top:5px;min-height:16px}
+.discount-msg.ok{color:var(--teal-dk);font-weight:500}
+.discount-msg.err{color:#dc2626}
+
+/* -- DOWNGRADE LINK -- */
+.downgrade-row{text-align:center;margin-top:7px}
+.downgrade-lnk{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);text-decoration:underline;padding:0}
+.downgrade-lnk:hover{color:var(--txt2)}
+
+/* -- FAQ -- */
+.faq-section{margin-top:1.25rem;border:1.5px solid var(--bdr);border-radius:12px;background:var(--s2);overflow:hidden}
+.faq-head{padding:11px 16px;background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px}
+.faq-head>i{font-size:17px;color:var(--txt2);flex-shrink:0}
+.faq-head-title{font-size:13px;font-weight:500;color:var(--txt)}
+.faq-item{border-bottom:1px solid var(--bdr)}
+.faq-item:last-child{border-bottom:none}
+.faq-q{width:100%;padding:11px 16px;text-align:left;background:none;border:none;font-family:var(--font);font-size:12.5px;font-weight:500;color:var(--txt);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .1s}
+.faq-q:hover{background:var(--s1)}
+.faq-q i.faq-arrow{font-size:14px;color:var(--muted);flex-shrink:0;transition:transform .2s}
+.faq-q.open i.faq-arrow{transform:rotate(180deg)}
+.faq-a{overflow:hidden;max-height:0;transition:max-height .28s ease;font-size:12px;color:var(--txt2);line-height:1.65;padding:0 16px}
+.faq-a.open{max-height:400px;padding-bottom:13px}
+.faq-a a{color:var(--teal-dk)}
+
+/* -- TOAST -- */
+.plan-toast{position:fixed;bottom:24px;right:24px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;font-family:var(--font);box-shadow:0 4px 20px rgba(0,0,0,.13);z-index:9999;display:flex;align-items:center;gap:8px;animation:toastIn .22s ease}
+.plan-toast.ok{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.plan-toast.info{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* -- MODAL -- */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal-box{background:#fff;border-radius:14px;padding:1.5rem;max-width:400px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem}
+.modal-title-txt{font-size:15px;font-weight:700;color:var(--txt)}
+.modal-close-btn{background:none;border:none;cursor:pointer;font-size:22px;color:var(--muted);padding:0;line-height:1;font-family:var(--font)}
+.modal-body-txt{font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:1.1rem}
+.modal-body-txt p{margin-bottom:.4rem}
+.modal-body-txt p:last-child{margin-bottom:0}
+.modal-body-txt ul{margin:.3rem 0 .3rem 1.2rem}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.modal-btn{padding:8px 16px;font-size:13px;font-weight:500;border-radius:var(--r);cursor:pointer;font-family:var(--font);border:1.5px solid var(--bdr2);background:var(--s1);color:var(--txt2);transition:all .15s}
+.modal-btn:hover{background:var(--bdr)}
+.modal-btn-primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.modal-btn-primary:hover{background:var(--teal-dk);border-color:var(--teal-dk)}
+.modal-btn-danger{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.modal-btn-danger:hover{background:#ffedd5}
+
+/* -- ADDON BANNER -- */
+.addon-banner{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border:1.5px solid #a5b4fc;border-radius:12px;background:#eef2ff;margin-bottom:1.25rem}
+.addon-banner-left{display:flex;align-items:flex-start;gap:10px}
+.addon-banner-left>i{font-size:18px;color:#6366f1;flex-shrink:0;margin-top:2px}
+.addon-banner-title{font-size:13px;font-weight:600;color:#312e81;margin-bottom:5px}
+.addon-banner-item{font-size:12px;color:#4338ca;display:flex;align-items:center;gap:6px;padding:2.5px 0;line-height:1.4}
+.addon-banner-item i{font-size:12px;color:#6366f1;flex-shrink:0}
+.addon-active-chip{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:#dcfce7;color:#166534;border:1px solid #86efac}
+
+/* -- CHAT BUBBLE -- */
+.chat-bubble-btn{position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(13,148,136,.45);z-index:8999;border:none;transition:transform .15s,box-shadow .15s}
+.chat-bubble-btn:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(13,148,136,.55)}
+.chat-bubble-btn i{font-size:22px}
+.chat-bubble-btn::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(13,148,136,.3);animation:chatPulse 2.2s ease infinite;pointer-events:none}
+@keyframes chatPulse{0%,100%{opacity:.6;transform:scale(1)}55%{opacity:0;transform:scale(1.18)}}
+
+/* -- CHAT BOX -- */
+.chat-box{position:fixed;bottom:90px;right:24px;width:320px;height:430px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);z-index:9000;display:none;flex-direction:column;overflow:hidden;border:1px solid var(--bdr)}
+.chat-box.open{display:flex;animation:chatIn .2s ease}
+@keyframes chatIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.chat-hd{padding:12px 14px;background:var(--teal);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.chat-hd-left{display:flex;align-items:center;gap:10px}
+.chat-hd-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-hd-avatar i{font-size:19px;color:#fff}
+.chat-hd-name{font-size:13px;font-weight:600;color:#fff}
+.chat-hd-status{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.8);margin-top:2px}
+.chat-hd-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0}
+.chat-hd-close{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.75);padding:4px;line-height:1;transition:color .12s}
+.chat-hd-close:hover{color:#fff}
+.chat-hd-close i{font-size:18px}
+
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{display:flex;flex-direction:column;max-width:83%}
+.chat-msg-bot{align-self:flex-start}
+.chat-msg-user{align-self:flex-end;align-items:flex-end}
+.chat-msg-bubble{padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.55;word-break:break-word}
+.chat-msg-bot .chat-msg-bubble{background:var(--s1);border:1px solid var(--bdr);border-bottom-left-radius:3px;color:var(--txt)}
+.chat-msg-user .chat-msg-bubble{background:var(--teal);color:#fff;border-bottom-right-radius:3px}
+.chat-msg-time{font-size:10px;color:var(--muted);margin-top:3px;padding:0 2px}
+.chat-typing-dots{display:flex;gap:5px;align-items:center;padding:11px 14px}
+.chat-typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:typeDot .9s ease infinite}
+.chat-typing-dots span:nth-child(2){animation-delay:.18s}
+.chat-typing-dots span:nth-child(3){animation-delay:.36s}
+@keyframes typeDot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+.chat-input-row{display:flex;gap:7px;padding:10px 12px;border-top:1px solid var(--bdr);flex-shrink:0;background:var(--s2)}
+.chat-text-input{flex:1;padding:8px 11px;font-size:12.5px;border:1.5px solid var(--bdr2);border-radius:var(--r);outline:none;font-family:var(--font);color:var(--txt);background:var(--s2);transition:border-color .15s}
+.chat-text-input:focus{border-color:var(--teal)}
+.chat-text-input::placeholder{color:var(--muted)}
+.chat-send-btn{padding:8px 11px;background:var(--teal);border:none;border-radius:var(--r);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+.chat-send-btn:hover{background:var(--teal-dk)}
+.chat-send-btn i{font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- OPTIONS BAR -->
+  <div class="opts-bar">
+    <span class="opts-bar-label"><i class="ti ti-settings-2"></i> Options</span>
+    <div class="opts-bar-field">
+      <label for="opt-store-count">Actual store product count:</label>
+      <input type="number" id="opt-store-count" min="0" placeholder="e.g. 4800"
+             oninput="setStoreCount(this.value)"/>
+    </div>
+    <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+      <div style="display:flex;gap:6px">
+        <button class="ctype-btn" id="ctype-new-over50k" onclick="setCustomerType('new_over50k')">Khách mới &gt; 50k</button>
+        <button class="ctype-btn active" id="ctype-new" onclick="setCustomerType('new')">Khách mới &lt; 50k</button>
+        <button class="ctype-btn" id="ctype-old" onclick="setCustomerType('returning')">Khách cũ</button>
+      </div>
+      <div id="ctype-sub-btns" style="display:flex;gap:6px"></div>
+    </div>
+  </div>
+
+  <h1 class="pg-title">Pricing</h1>
+  <p class="pg-sub">Manage your pricing plan. Read more guidelines <strong><u>here</u></strong></p>
+
+  <!-- CURRENT PLAN BANNER -->
+  <div class="cur-banner">
+    <div class="cur-banner-top">
+      <div class="cur-banner-left">
+        <i class="ti ti-circle-check-filled"></i>
+        <div>
+          <div class="cur-banner-plan">Current plan: <strong id="cb-plan-name">Free plan</strong> <span id="cb-trial-badge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fde68a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:4px;vertical-align:middle">Trial</span></div>
+          <div class="cur-banner-expiry" id="cb-plan-expiry">
+            <i class="ti ti-calendar-event"></i>
+            <span id="cb-expiry-txt">Trial expires in 14 days</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cur-banner-lim">
+      <div class="cur-banner-lim-hdr">
+        <span>Product count on current plan</span>
+        <strong id="cb-lim-lbl">300 products</strong>
+      </div>
+      <div class="lim-track"><div class="lim-fill" id="cb-lim-fill" style="width:1%"></div></div>
+      <div id="cb-lim-warn" style="display:none;margin-top:6px;padding:6px 10px;background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--r);font-size:11.5px;font-weight:500;color:#92400e"></div>
+    </div>
+  </div>
+
+  <div style="height:1px;background:var(--bdr);margin:0 0 1.25rem"></div>
+
+  <div id="tab-pricing-content">
+    <div class="root" style="grid-template-columns:1fr">
+      <div class="left">
+
+        <!-- SLIDER -->
+        <div class="slider-section">
+          <div class="slider-label">Choose future plan</div>
+          <div class="slider-wrap" id="slider-wrap">
+            <div class="track-fill" id="track-fill" style="width:0%"></div>
+            <div class="count-pill" id="count-pill" style="left:0%">0 products</div>
+            <div class="store-tick" id="store-tick"></div>
+            <input type="range" id="prod-slider" min="0" max="100" value="0" step="1"
+                   oninput="onSlide(this.value)"/>
+          </div>
+          <div class="milestones" id="milestones"></div>
+          <div class="store-lbl-row" id="store-lbl-row" style="display:none">
+            <span class="store-tick-lbl" id="store-tick-lbl">Your store</span>
+          </div>
+          <div class="detect-wrap">
+            <button class="detect-btn" onclick="detectProducts()">
+              <i class="ti ti-refresh"></i> Auto-detect my product count
+            </button>
+            <span class="detect-result" id="detect-result" style="display:none"></span>
+          </div>
+        </div>
+
+        <!-- DUAL PLAN CARDS: left=Free (always), right=slider plan -->
+        <div class="dual-cards" id="dual-cards"></div>
+
+        <!-- FAQ -->
+        <div class="faq-section" style="margin-top:1.25rem">
+          <div class="faq-head">
+            <i class="ti ti-help-circle"></i>
+            <div class="faq-head-title">Frequently asked questions</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Is there a free plan?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. The Free plan supports stores with up to <strong>300 products</strong> at no cost. Development stores with fewer than 50,000 products also qualify for free access.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Can I change my plan anytime?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. You can upgrade or downgrade between tiers at any time. Billing continues at your current frequency (monthly or annual) under the new plan — there is no lock-in between tiers.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">What happens if I upgrade?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">When you upgrade, you are billed at the new plan rate going forward. There is no separate prorated refund for unused days on your previous plan — the new rate applies from your next billing cycle.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">What happens if I downgrade?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">You move to the lower plan at the end of your current billing period with no proration or refund. Product count limits of the new plan will apply — products above the limit won't be indexed until you upgrade.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Can I switch from monthly to annual billing (or vice versa)?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">You can switch from <strong>Monthly to Annual</strong> at any time — the change takes effect at your next billing date. Switching from <strong>Annual to Monthly</strong> is not available until your current annual term ends.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">What happens if I cancel my annual plan mid-term?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Your plan stays active until the end of the annual billing term. No prorated refund is issued for remaining months. At term end, your store reverts to Free unless you subscribe to a new plan.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Is there a free trial on paid plans?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. All paid plans include a <strong>14-day free trial</strong>, one-time per store. You won't receive another trial when switching between paid plans or after canceling and re-subscribing.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">What happens if my store exceeds the product limit?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Filters and search continue to work for products already indexed. New products above the limit won't be indexed until you upgrade to a plan that supports your product count.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Do all plans include the same features?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. All paid plans include the same core feature set. The primary difference between plans is the product count limit — higher plans support larger catalogs.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Is theme customization included?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. Free theme customization is included with all plans. Our team will help configure Findter to match your store's design at no additional cost.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. You can cancel your subscription at any time through Shopify. There are no long-term commitments on monthly plans. Annual plans remain active until the end of the billing term.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Will Findter work with my Shopify theme?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Findter works with most Shopify themes out of the box. If any adjustments are needed, our team will customize the integration for your theme at no extra cost.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">What support do you offer?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">All plans include email and live chat support. Starter and above receive priority response times. Professional and higher plans include dedicated 1-on-1 account support.</div>
+          </div>
+        </div>
+
+      </div><!-- /.left -->
+
+
+    </div>
+
+  </div><!-- /#tab-pricing-content -->
+
+  <div id="tab-addons-content" style="display:none">
+    <div class="root">
+      <div class="left">
+        <div class="addon-section">
+          <div class="addon-head">
+            <div class="addon-head-left">
+              <i class="ti ti-adjustments-horizontal"></i>
+              <div>
+                <div class="addon-title">Advanced Features</div>
+                <div class="addon-sub">Purchase add-ons independently - no plan required</div>
+              </div>
+            </div>
+          </div>
+          <div id="addon-feat-list"></div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-section">
+          <div class="faq-head">
+            <i class="ti ti-help-circle"></i>
+            <div class="faq-head-title">Billing, trials &amp; cancellation</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Are add-ons billed separately from my plan?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. Add-ons are billed independently from your subscription plan. You can subscribe to any add-on regardless of which plan you are on, and they will be charged as a separate line item.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Can I cancel an add-on at any time?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. You can cancel any add-on at any time. The add-on stays active until the end of the current billing period, then it will not renew.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Do add-ons include a free trial?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Add-ons do not include a free trial period. They are billed immediately upon subscription. You may cancel before the next billing cycle to avoid future charges.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">What is the refund policy for add-ons?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Billing is processed by Shopify and subject to <a href="https://www.shopify.com/legal/terms" target="_blank">Shopify's billing terms</a>. Add-on charges are generally non-refundable except where required by law.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Can I add multiple add-ons at the same time?<i class="ti ti-chevron-down faq-arrow"></i></button>
+            <div class="faq-a">Yes. You can select as many add-ons as you need. Each add-on is priced and billed individually, and you can subscribe to or cancel them independently at any time.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ADDON ORDER SUMMARY -->
+      <div class="right">
+        <div class="sum-card">
+          <div class="sum-head"><div class="sum-head-title">Add-ons summary</div></div>
+          <div class="sum-body">
+
+            <div>
+              <div class="sum-lbl">Selected add-ons</div>
+              <div id="a-addon-lines"><div class="sum-empty">No add-ons selected</div></div>
+            </div>
+
+            <div class="discount-wrap" id="a-discount-wrap" style="display:none">
+              <div class="sum-lbl">Discount code</div>
+              <div class="discount-row">
+                <input class="discount-input" id="a-discount-input" type="number" min="1" max="100" placeholder="1-100 %" />
+                <button class="discount-apply" onclick="applyAddonDiscount()">Apply</button>
+              </div>
+              <div class="discount-msg" id="a-discount-msg"></div>
+            </div>
+
+            <div class="sum-total-row" id="a-total-row" style="display:none">
+              <span class="sum-total-lbl">Total <button class="total-toggle" id="a-total-toggle" onclick="toggleAddonBreakdown()"><i class="ti ti-chevron-down"></i></button></span>
+              <span class="sum-total-val" id="a-total">$0<span>/mo</span></span>
+            </div>
+            <div class="total-breakdown" id="a-total-breakdown" style="display:none"></div>
+
+            <button class="sub-btn free-state" id="a-sub-btn">Select add-ons to continue</button>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /#tab-addons-content -->
+
+</div><!-- /.wrap -->
+
+<!-- DISCOUNT CODE MODAL -->
+<div class="modal-overlay" id="disc-modal" style="display:none" onclick="discModalBgClick(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title-txt">Discount code</span>
+      <button class="modal-close-btn" onclick="closeDiscModal()">&times;</button>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="discount-row">
+        <input class="discount-input" id="disc-code-input" type="text" placeholder="Enter your code..." style="text-transform:uppercase" onkeydown="if(event.key==='Enter')applyCardDiscount()"/>
+        <button class="discount-apply" onclick="applyCardDiscount()">Apply</button>
+      </div>
+      <div class="discount-msg" id="disc-msg" style="margin-top:6px;min-height:16px"></div>
+      <div id="disc-summary-section" style="display:none"></div>
+    </div>
+    <div class="modal-actions" id="disc-modal-actions" style="display:none">
+      <button class="modal-btn" onclick="closeDiscModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="disc-confirm-btn" onclick="processDiscPayment()">Process to Payment →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN CHANGE MODAL -->
+<div class="modal-overlay" id="plan-modal" style="display:none" onclick="modalBgClick(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title-txt" id="modal-title">Confirm</span>
+      <button class="modal-close-btn" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body-txt" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="modal-confirm-btn" onclick="confirmModal()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* DATA */
+const PLAN_COUNT_RANGES = {
+  free:         [0,       300     ],
+  starter:      [301,     3000    ],
+  growth:       [3001,    50000   ],
+  professional: [50001,   100000  ],
+  business:     [100001,  150000  ],
+  advanced:     [150001,  200000  ],
+  enterprise:   [200001,  Infinity],
+};
+
+const ANCHORS = [
+  { pos:  0, count:      0 },
+  { pos:  3, count:    100 },
+  { pos:  6, count:    300 },
+  { pos: 11, count:   1000 },
+  { pos: 16, count:   3000 },
+  { pos: 23, count:  10000 },
+  { pos: 31, count:  50000 },
+  { pos: 41, count:  75000 },
+  { pos: 52, count: 100000 },
+  { pos: 60, count: 125000 },
+  { pos: 69, count: 150000 },
+  { pos: 77, count: 175000 },
+  { pos: 86, count: 200000 },
+  { pos:100, count: 250000 },
+];
+
+const MILESTONE_DOTS = [
+  { pos:  0, label:'0'     },
+  { pos:  6, label:'300'   },
+  { pos: 16, label:'3K'    },
+  { pos: 31, label:'50K'   },
+  { pos: 52, label:'100K'  },
+  { pos: 69, label:'150K'  },
+  { pos: 86, label:'200K+' },
+];
+
+const PLANS = {
+  free:         { name:'Free',         price:0,    annPx:0,     limitLabel:'300',      limitPct:1   },
+  starter:      { name:'Starter',      price:9,    annPx:8.10,  limitLabel:'3,000',    limitPct:3   },
+  growth:       { name:'Growth',       price:19,   annPx:17.10, limitLabel:'50,000',   limitPct:50  },
+  professional: { name:'Professional', price:59,   annPx:53.10, limitLabel:'100,000',  limitPct:100 },
+  business:     { name:'Business',     price:79,   annPx:71.10, limitLabel:'150,000',  limitPct:100 },
+  advanced:     { name:'Advanced',     price:99,   annPx:89.10, limitLabel:'200,000',  limitPct:100 },
+  enterprise:   { name:'Enterprise',   price:null, annPx:null,  limitLabel:'200,000+', limitPct:100 },
+};
+
+const PLAN_FEATURES = {
+  free:         { inc:['Basic search','Up to 3 filters'],
+                  exc:['Metafield indexing','Swatch images','Storefront sorting','Variant filter'] },
+  starter:      { inc:['Metafield indexing','Swatch images','Filter count values'],
+                  exc:['Storefront sorting','Variant filter','Advanced variant filter'] },
+  growth:       { inc:['Everything in Starter','Storefront sorting','Variant filter','Market currency'],
+                  exc:['Advanced variant filter','Multi-source filter'] },
+  professional: { inc:['Everything in Growth','Advanced variant filter','Multi-source filter','Collection search','OR-mode & Market filters'],
+                  exc:[] },
+  business:     { inc:['Everything in Professional','Dedicated account manager','Custom indexing limits','Priority SLA'],
+                  exc:[] },
+  advanced:     { inc:['Everything in Business','Advanced analytics','White-glove onboarding','Bulk API access'],
+                  exc:[] },
+  enterprise:   { inc:['Custom product limit','Dedicated onboarding','SLA guarantee','Custom integrations','Volume pricing'],
+                  exc:[] },
+};
+
+const PLAN_DESC = {
+  free:         'Basic filtering to get started at no cost.',
+  starter:      'Essential filters for small stores just getting started.',
+  growth:       'Variant filtering and sorting for growing catalogs.',
+  professional: 'Every filter feature unlocked for high-volume stores.',
+  business:     'Advanced features with dedicated account support.',
+  advanced:     'Full power for large-scale store operations.',
+  enterprise:   'Custom pricing for stores with more than 200,000 products.',
+};
+
+const PLAN_ORDER = ['free','starter','growth','professional','business','advanced','enterprise'];
+
+const PLAN_FEATURES_SHORT = {
+  free:         [
+    'Free for dev stores under 50k products',
+    'Unlimited filters',
+    'Smart search bar',
+    'Collection-specific filters',
+    'Free theme customization',
+    'Merged filter values',
+    'Live chat support',
+  ],
+  starter:      [
+    'Priority Support',
+    'Free for dev stores under 50k products',
+    'Unlimited filters',
+    'Smart search bar',
+    'Collection-specific filters',
+    'Free theme customization',
+    'Merged filter values',
+    'Live chat support',
+  ],
+  growth:       [
+    'Priority Support',
+    'Free for dev stores under 50k products',
+    'Unlimited filters',
+    'Smart search bar',
+    'Collection-specific filters',
+    'Free theme customization',
+    'Merged filter values',
+    'Live chat support',
+  ],
+  professional: [
+    '1-1 Support',
+    'Free for dev stores under 50k products',
+    'Unlimited filters',
+    'Smart search bar',
+    'Collection-specific filters',
+    'Free theme customization',
+    'Merged filter values',
+    'Live chat support',
+  ],
+  business:     [
+    '1-1 Support',
+    'Free for dev stores under 50k products',
+    'Unlimited filters',
+    'Smart search bar',
+    'Collection-specific filters',
+    'Free theme customization',
+    'Merged filter values',
+    'Live chat support',
+  ],
+  advanced:     [
+    '1-1 Support',
+    'Free for dev stores under 50k products',
+    'Unlimited filters',
+    'Smart search bar',
+    'Collection-specific filters',
+    'Free theme customization',
+    'Merged filter values',
+    'Live chat support',
+    '1-1 Support',
+  ],
+  enterprise:   [
+    '1-1 Support',
+    'Free for dev stores under 50k products',
+    'Unlimited filters',
+    'Smart search bar',
+    'Collection-specific filters',
+    'Free theme customization',
+    'Merged filter values',
+    'Live chat support',
+  ],
+};
+
+const PLAN_PILLS={};
+const PLAN_LIMITS={free:300,starter:3000,growth:50000,professional:100000,business:150000,advanced:200000,enterprise:Infinity};
+
+const ADDON_PRICES = { ymm:9.99, aiSearch:14.99, synonyms:4.99, b2bFilter:7.99 };
+const ADDON_LABELS = {
+  ymm:'Year Make Model Search',
+  aiSearch:'AI Semantic Search',
+  synonyms:'Synonyms Search',
+  b2bFilter:'Dependant Filter (B2B Tools)',
+};
+const FEAT_DESC = {
+  ymm:'Let shoppers find parts by vehicle year, make, and model',
+  aiSearch:'Natural language search powered by AI for smarter, intent-based results',
+  synonyms:'Map alternate words and phrases to the same search results',
+  b2bFilter:'Show or hide filters based on customer tags or B2B conditions',
+};
+
+/* STATE */
+let USER_PLAN       = 'free';
+let USER_BILLING    = 'monthly';
+let planExpiresDate = null;
+let selPlan         = 'free';
+let sliderPos       = 0;
+let billingMode     = 'monthly';
+let discountPct     = 0;
+let addonItems      = {};
+let addonDiscPct    = 0;
+let subscribedAddons= {}; // key -> { price, expiresDate }
+let cardFeatsOpen   = { free:false, sel:false };
+let pendingAction   = null;
+let cardDiscountPct = 0;
+let pendingDiscPlan = null;
+let pendingDiscBill = null;
+let storeProductCount = 0;
+let customerType = 'new'; // 'new' | 'new_over50k' | 'returning'
+let trialEnded = false;
+let over50k = { active:false, locked:false, trialStarted:false, count:0, plan:null }; // 'Khách mới > 50k' simulated flow
+
+function isOver50kOnTrial(){
+  return over50k.active && over50k.trialStarted && !trialEnded;
+}
+
+/* HELPERS */
+function countForPos(pos){
+  for(let i=0;i<ANCHORS.length-1;i++){
+    const a=ANCHORS[i],b=ANCHORS[i+1];
+    if(pos>=a.pos&&pos<=b.pos){
+      const t=(pos-a.pos)/(b.pos-a.pos);
+      return Math.round(a.count+t*(b.count-a.count));
+    }
+  }
+  return ANCHORS[ANCHORS.length-1].count;
+}
+
+function planForCount(count){
+  for(const [key,[lo,hi]] of Object.entries(PLAN_COUNT_RANGES)){
+    if(count>=lo&&count<=hi) return key;
+  }
+  return 'enterprise';
+}
+
+function posForCount(target){
+  for(let i=0;i<ANCHORS.length-1;i++){
+    const a=ANCHORS[i],b=ANCHORS[i+1];
+    if(target>=a.count&&target<=b.count){
+      const t=(target-a.count)/(b.count-a.count);
+      return Math.round(a.pos+t*(b.pos-a.pos));
+    }
+  }
+  return 100;
+}
+
+function fmtCount(n){
+  if(n>=200000) return '200,000+';
+  if(n>=1000) return (n/1000%1===0?n/1000:(n/1000).toFixed(1))+'K';
+  return n.toLocaleString();
+}
+
+/* TAB SWITCHING */
+function switchTab(tab){
+  document.getElementById('tab-pricing-content').style.display = tab==='pricing'?'block':'none';
+  document.getElementById('tab-addons-content').style.display  = tab==='addons' ?'block':'none';
+  document.getElementById('tab-pricing-btn').classList.toggle('active', tab==='pricing');
+  document.getElementById('tab-addons-btn').classList.toggle('active',  tab==='addons');
+}
+
+/* BUILD STATIC UI */
+function buildMilestones(){
+  const wrap=document.getElementById('milestones');
+  wrap.innerHTML='';
+  MILESTONE_DOTS.forEach(m=>{
+    const d=document.createElement('div');
+    d.className='ms-dot';d.style.left=m.pos+'%';
+    d.innerHTML=`<div class="ms-circle" id="msc-${m.pos}"></div><div class="ms-lbl">${m.label}</div>`;
+    wrap.appendChild(d);
+  });
+}
+
+function buildAddonList(){
+  const list=document.getElementById('addon-feat-list');
+  list.innerHTML=Object.keys(ADDON_PRICES).map(k=>`
+    <div class="feat-row" id="afr-${k}" onclick="toggleAddon('${k}')">
+      <button class="tog" id="atog-${k}" aria-label="${ADDON_LABELS[k]}"></button>
+      <div class="fi-info">
+        <div class="fi-name">${ADDON_LABELS[k]}</div>
+        <div class="fi-desc">${FEAT_DESC[k]||''}</div>
+      </div>
+      <div class="fi-right" id="afright-${k}">
+        <div class="fi-price">$${ADDON_PRICES[k].toFixed(2)}</div>
+        <div class="fi-cad">/month</div>
+      </div>
+    </div>`).join('');
+}
+
+/* SLIDER */
+function onSlide(val){
+  sliderPos=parseInt(val);
+  const count=countForPos(sliderPos);
+  const newPlan=planForCount(count);
+
+  document.getElementById('track-fill').style.width=sliderPos+'%';
+  const pill=document.getElementById('count-pill');
+  const cl=Math.max(4,Math.min(96,sliderPos));
+  pill.style.left=cl+'%';
+  pill.textContent=count>=200000?'200,000+ products':fmtCount(count)+' products';
+
+  MILESTONE_DOTS.forEach(m=>{
+    const el=document.getElementById('msc-'+m.pos);
+    if(el) el.classList.toggle('lit',sliderPos>=m.pos);
+  });
+
+  if(newPlan!==selPlan){
+    selPlan=newPlan;
+    cardFeatsOpen.sel=false;
+    discountPct=0;
+    const di=document.getElementById('discount-input');
+    const dm=document.getElementById('discount-msg');
+    if(di) di.value='';
+    if(dm){dm.textContent='';dm.className='discount-msg';}
+    renderDualCards();
+  }
+  renderPlanSummary();
+}
+
+/* DUAL CARDS */
+function renderDualCards(){
+  document.getElementById('dual-cards').innerHTML=renderFreeCard()+renderSelCard();
+}
+
+function renderFreeCard(){
+  const p=PLANS.free;
+  const isCurrent=USER_PLAN==='free';
+  const isOpen=cardFeatsOpen.free;
+  const featItems=PLAN_FEATURES_SHORT.free.map(f=>
+    `<div class="feat-collapse-item"><i class="ti ti-check"></i>${f}</div>`).join('');
+  const cta=(over50k.active&&over50k.locked)
+    ?`<button class="card-cta noop" disabled><i class="ti ti-lock"></i> Not available</button>`
+    :(isCurrent
+      ?`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`
+      :`<button class="card-cta downgrade" onclick="openPlanModal('free')"><i class="ti ti-arrow-down-right"></i> Downgrade to Free</button>`);
+  return `
+    <div class="plan-card free-card">
+      <div class="pc-top-area"></div>
+      <div class="pc-head">
+        <span class="pc-name">Free Plan</span>
+      </div>
+      <div class="pc-limit-wrap">
+        <span class="pc-limit"><i class="ti ti-package"></i> Up to ${p.limitLabel} products</span>
+      </div>
+      <div class="feat-collapse">
+        <button class="feat-collapse-toggle${isOpen?' open':''}" id="cf-toggle-free" onclick="toggleCardFeats('free')">
+          Feature details <i class="ti ti-chevron-down fc-arrow"></i>
+        </button>
+        <div class="feat-collapse-body${isOpen?' open':''}" id="cf-body-free">
+          <div class="feat-collapse-list">${featItems}</div>
+        </div>
+      </div>
+      <div class="pc-cta-area">${cta}</div>
+    </div>`;
+}
+
+function renderSelCard(){
+  const over50kLocked=over50k.active&&over50k.locked;
+  const displayPlan=over50kLocked?over50k.plan:(selPlan==='free'?'starter':selPlan);
+
+  const p=PLANS[displayPlan];
+  const isQuote=displayPlan==='enterprise';
+  const isAnn=billingMode==='annual'&&!isQuote;
+  const isCurrent=displayPlan===USER_PLAN;
+  const curIdx=PLAN_ORDER.indexOf(USER_PLAN);
+  const selIdx=PLAN_ORDER.indexOf(displayPlan);
+  const isUp=selIdx>curIdx;
+  const isOpen=cardFeatsOpen.sel;
+
+  const isBillSwitch=isCurrent&&!isQuote&&billingMode!==USER_BILLING;
+  const onTrial=isCurrent&&isOver50kOnTrial();
+  const extraClass=isAnn&&!isQuote?' annual-card':'';
+  const showDiscount=!isQuote&&!over50kLocked&&(!isCurrent||onTrial||(isBillSwitch&&billingMode==='annual'));
+  const discountLink=showDiscount
+    ?`<button class="card-discount-link" onclick="openDiscountModal('${displayPlan}')">Have a discount code?</button>`
+    :'';
+
+  const pill='';
+
+  const monthlyLocked=USER_BILLING==='annual';
+  const billingToggle=(isQuote||over50kLocked)?'':`
+    <div class="card-billing-inner">
+      <button class="card-bill-tab${billingMode==='monthly'?' active':''}" onclick="selectBilling('monthly')"${monthlyLocked?' style="opacity:.45;cursor:not-allowed"':''}>Monthly</button>
+      <button class="card-bill-tab${billingMode==='annual'?' active':''}" onclick="selectBilling('annual')">Annually<span class="card-bill-save">-10%</span></button>
+    </div>`;
+
+  const trialRibbon=!isQuote&&!isCurrent&&isUp&&USER_PLAN==='free'&&(customerType==='new'||customerType==='new_over50k')&&!trialEnded
+    ?`<div class="trial-ribbon"><i class="ti ti-clock"></i> 14-day free trial included</div>`:'';
+
+  let priceHTML='';
+  if(isQuote){
+    priceHTML=`<div class="pc-price-main" style="font-size:17px;color:#86198f">Let's talk</div>`;
+  } else if(isAnn){
+    priceHTML=`<div class="pc-price-main">$${(p.annPx*12).toFixed(2)}<span class="pc-price-unit">/yr</span></div>
+      <div class="pc-price-was">$${(p.price*12).toFixed(2)}/yr</div>`;
+  } else {
+    priceHTML=`<div class="pc-price-main">$${p.price.toFixed(2)}<span class="pc-price-unit">/mo</span></div>`;
+  }
+
+  const featItems=(PLAN_FEATURES_SHORT[displayPlan]||[]).map(f=>
+    `<div class="feat-collapse-item"><i class="ti ti-check"></i>${f}</div>`).join('');
+
+  const limitLine=isQuote
+    ?`<span class="pc-limit"><i class="ti ti-package"></i> More than 200,000 products</span>`
+    :`<span class="pc-limit"><i class="ti ti-package"></i> Up to ${p.limitLabel} products</span>`;
+
+  let cta='';
+  if(over50kLocked){
+    cta=`<button class="card-cta upgrade" onclick="startOver50kTrial()"><i class="ti ti-rocket"></i> Start 14d trial now</button>`;
+  } else if(isQuote){
+    cta=`<button class="card-cta upgrade" onclick="openPlanModal('enterprise')"><i class="ti ti-mail"></i> Contact us for a quote</button>`;
+  } else if(onTrial){
+    cta=`<button class="card-cta noop" disabled><i class="ti ti-clock"></i> On Trials</button>
+      <button class="card-cta upgrade" onclick="convertTrialToPaid()"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name} plan</button>`;
+  } else if(isBillSwitch){
+    const lbl=billingMode==='annual'?'Annually':'Monthly';
+    cta=`<button class="card-cta upgrade" onclick="switchBillingModal('${billingMode}')">Switch to ${lbl}</button>`;
+  } else if(isCurrent){
+    cta=`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`;
+  } else if(isUp){
+    cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>`;
+  } else {
+    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>`;
+  }
+
+  return `
+    <div class="plan-card${isQuote?' quote-card':''}${extraClass}">
+      ${trialRibbon}
+      <div class="pc-top-area">${billingToggle}</div>
+      <div class="pc-head">
+        <div class="pc-name-wrap">
+          <span class="pc-name">${p.name} Plan</span>
+          ${pill}
+        </div>
+        <div class="pc-price-block">${priceHTML}</div>
+      </div>
+      <div class="pc-limit-wrap">${limitLine}</div>
+      <div class="feat-collapse">
+        <button class="feat-collapse-toggle${isOpen?' open':''}" id="cf-toggle-sel" onclick="toggleCardFeats('sel')">
+          Feature details <i class="ti ti-chevron-down fc-arrow"></i>
+        </button>
+        <div class="feat-collapse-body${isOpen?' open':''}" id="cf-body-sel">
+          <div class="feat-collapse-list">${featItems}</div>
+        </div>
+      </div>
+      <div class="pc-cta-area">
+        ${discountLink}
+        ${cta}
+      </div>
+    </div>`;
+}
+
+function toggleCardFeats(which){
+  const next=!cardFeatsOpen[which];
+  cardFeatsOpen.free=next;
+  cardFeatsOpen.sel=next;
+  ['free','sel'].forEach(k=>{
+    const toggle=document.getElementById(`cf-toggle-${k}`);
+    const body=document.getElementById(`cf-body-${k}`);
+    if(toggle) toggle.classList.toggle('open',next);
+    if(body) body.classList.toggle('open',next);
+  });
+}
+
+function selectBilling(mode){
+  if(USER_BILLING==='annual'&&mode==='monthly') return;
+  billingMode=mode;
+  renderDualCards();
+  renderPlanSummary();
+}
+
+function switchBillingModal(newMode){
+  const plan=PLANS[USER_PLAN];
+  const newLabel=newMode==='annual'?'Annually':'Monthly';
+  const oldLabel=USER_BILLING==='monthly'?'Monthly':'Annually';
+  const pxLabel=newMode==='annual'
+    ?`$${(plan.annPx*12).toFixed(2)}/year ($${plan.annPx.toFixed(2)}/mo billed annually)`
+    :`$${plan.price.toFixed(2)}/month`;
+  const lockNote=newMode==='annual'
+    ?`<p style="margin-top:.5rem;font-size:11.5px;color:var(--muted)">Once switched, you won't be able to switch back to Monthly until the end of this annual billing cycle.</p>`
+    :'';
+  openModal(
+    `Switch to ${newLabel}`,
+    `<p>Switching your <strong>${plan.name}</strong> plan billing from <strong>${oldLabel}</strong> to <strong>${newLabel}</strong>.</p><p>New rate: <strong>${pxLabel}</strong></p><p>The change takes effect at your next billing date.</p>${lockNote}`,
+    `Confirm switch`,false,
+    ()=>{
+      USER_BILLING=newMode;billingMode=newMode;
+      renderDualCards();renderPlanSummary();
+      showToast(`Switched to ${newLabel} billing!`,'ok');
+    }
+  );
+}
+
+/* PLAN SUMMARY — removed panel, now a no-op */
+function renderPlanSummary(){}
+
+function buildPlanBreakdown(plan,isAnn,raw,final,suffix){
+  let h='';
+  if(plan.price!==0&&plan.price!==null){
+    const px=isAnn?plan.annPx*12:plan.price;
+    h+=`<div class="bd-line"><span>${plan.name} plan${isAnn?' (annual)':''}</span><span>$${px.toFixed(2)}${suffix}</span></div>`;
+  }
+  if(discountPct>0){
+    const s=raw-final;
+    h+=`<div class="bd-divider"></div>`;
+    h+=`<div class="bd-line bd-original"><span>Original</span><span>$${raw.toFixed(2)}${suffix}</span></div>`;
+    h+=`<div class="bd-line bd-discount"><span>Discount (${discountPct}%)</span><span>-$${s.toFixed(2)}</span></div>`;
+  }
+  return h;
+}
+
+function applyDiscount(){
+  const val=parseInt(document.getElementById('discount-input').value.trim(),10);
+  const msg=document.getElementById('discount-msg');
+  if(isNaN(val)||val<1||val>100){
+    msg.textContent='Enter a number between 1 and 100.';msg.className='discount-msg err';
+    discountPct=0;renderPlanSummary();return;
+  }
+  discountPct=val;msg.textContent=`${val}% discount applied!`;msg.className='discount-msg ok';
+  renderPlanSummary();
+}
+
+function toggleBreakdown(){
+  const bd=document.getElementById('total-breakdown');
+  const btn=document.getElementById('total-toggle');
+  const was=bd.style.display!=='none';
+  bd.style.display=was?'none':'block';
+  if(btn) btn.classList.toggle('open',!was);
+}
+
+/* ADDON ROWS & SUMMARY */
+function toggleAddon(key){
+  if(subscribedAddons[key]){
+    const fmt=subscribedAddons[key].expiresDate.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    openModal('Cancel add-on?',
+      `<p>You are about to cancel <strong>${ADDON_LABELS[key]}</strong>.</p><p>This add-on stays active until <strong>${fmt}</strong>, then will not renew.</p>`,
+      'Confirm cancel',true,
+      ()=>{
+        delete subscribedAddons[key];
+        renderAddonRows();renderAddonSummary();renderAddonBanner();
+        showToast(`${ADDON_LABELS[key]} cancelled.`,'info');
+      });
+    return;
+  }
+  if(addonItems[key]!==undefined) delete addonItems[key];
+  else addonItems[key]=ADDON_PRICES[key];
+  renderAddonRows();
+  renderAddonSummary();
+}
+
+function renderAddonRows(){
+  Object.keys(ADDON_PRICES).forEach(k=>{
+    const isSubscribed=subscribedAddons[k]!==undefined;
+    const isInCart=addonItems[k]!==undefined;
+    const isOn=isSubscribed||isInCart;
+    document.getElementById('atog-'+k)?.classList.toggle('on',isOn);
+    document.getElementById('afr-'+k)?.classList.toggle('toggled',isOn);
+    const fr=document.getElementById('afright-'+k);
+    if(fr){
+      if(isSubscribed){
+        const fmt=subscribedAddons[k].expiresDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        fr.innerHTML=`<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px"><span class="addon-active-chip"><i class="ti ti-check"></i> Active</span></div><div class="fi-cad">Renews ${fmt}</div>`;
+      } else {
+        fr.innerHTML=`<div class="fi-price${isInCart?' on-px':''}">$${ADDON_PRICES[k].toFixed(2)}</div><div class="fi-cad">/month</div>`;
+      }
+    }
+  });
+}
+
+function renderAddonSummary(){
+  const keys=Object.keys(addonItems);
+  const tot=keys.reduce((s,k)=>s+addonItems[k],0);
+
+  const adLns=document.getElementById('a-addon-lines');
+  adLns.innerHTML=keys.length>0
+    ?keys.map(k=>`
+      <div class="sum-line">
+        <span class="sum-line-n">${ADDON_LABELS[k]||k}</span>
+        <span class="sum-line-v">$${addonItems[k].toFixed(2)}</span>
+      </div>`).join('')
+    :'<div class="sum-empty">No add-ons selected</div>';
+
+  document.getElementById('a-discount-wrap').style.display=keys.length>0?'block':'none';
+
+  const totRow=document.getElementById('a-total-row');
+  const bdEl=document.getElementById('a-total-breakdown');
+  const toggleBtn=document.getElementById('a-total-toggle');
+  if(keys.length>0){
+    const finalTot=addonDiscPct>0?tot*(1-addonDiscPct/100):tot;
+    const discNote=addonDiscPct>0?` <span style="font-size:11px;font-weight:400;color:var(--teal-dk)">-${addonDiscPct}%</span>`:'';
+    totRow.style.display='flex';
+    document.getElementById('a-total').innerHTML=`$${finalTot.toFixed(2)}<span>/mo</span>${discNote}`;
+    if(bdEl) bdEl.innerHTML=buildAddonBreakdown(keys,tot,finalTot);
+  } else {
+    totRow.style.display='none';
+    if(bdEl){bdEl.style.display='none';bdEl.innerHTML='';}
+    if(toggleBtn) toggleBtn.classList.remove('open');
+  }
+
+  const btn=document.getElementById('a-sub-btn');
+  if(keys.length>0){
+    btn.textContent='To Payment →';btn.className='sub-btn';btn.onclick=checkoutAddons;
+  } else {
+    btn.textContent='Select add-ons to continue';btn.className='sub-btn free-state';btn.onclick=null;
+  }
+}
+
+function buildAddonBreakdown(keys,raw,final){
+  let h='';
+  keys.forEach(k=>{
+    h+=`<div class="bd-line"><span>${ADDON_LABELS[k]||k}</span><span>$${addonItems[k].toFixed(2)}/mo</span></div>`;
+  });
+  if(addonDiscPct>0){
+    const s=raw-final;
+    h+=`<div class="bd-divider"></div>`;
+    h+=`<div class="bd-line bd-original"><span>Original</span><span>$${raw.toFixed(2)}/mo</span></div>`;
+    h+=`<div class="bd-line bd-discount"><span>Discount (${addonDiscPct}%)</span><span>-$${s.toFixed(2)}</span></div>`;
+  }
+  return h;
+}
+
+function applyAddonDiscount(){
+  const val=parseInt(document.getElementById('a-discount-input').value.trim(),10);
+  const msg=document.getElementById('a-discount-msg');
+  if(isNaN(val)||val<1||val>100){
+    msg.textContent='Enter a number between 1 and 100.';msg.className='discount-msg err';
+    addonDiscPct=0;renderAddonSummary();return;
+  }
+  addonDiscPct=val;msg.textContent=`${val}% discount applied!`;msg.className='discount-msg ok';
+  renderAddonSummary();
+}
+
+function toggleAddonBreakdown(){
+  const bd=document.getElementById('a-total-breakdown');
+  const btn=document.getElementById('a-total-toggle');
+  const was=bd.style.display!=='none';
+  bd.style.display=was?'none':'block';
+  if(btn) btn.classList.toggle('open',!was);
+}
+
+function checkoutAddons(){
+  const keys=Object.keys(addonItems);
+  if(!keys.length) return;
+  const tot=keys.reduce((s,k)=>s+addonItems[k],0);
+  const finalTot=addonDiscPct>0?tot*(1-addonDiscPct/100):tot;
+  const listHTML=keys.map(k=>`<li>${ADDON_LABELS[k]} - $${addonItems[k].toFixed(2)}/mo</li>`).join('');
+  openModal(
+    'Subscribe to Add-ons',
+    `<p>You are subscribing to:</p><ul style="margin:.4rem 0 .4rem 1.2rem;line-height:1.8">${listHTML}</ul><p><strong>Total: $${finalTot.toFixed(2)}/mo</strong></p><p>These are billed immediately upon confirmation.</p>`,
+    'Confirm & Subscribe', false,
+    ()=>{
+      const now=new Date();
+      const expiry=new Date(now.getFullYear(),now.getMonth()+1,now.getDate());
+      keys.forEach(k=>{ subscribedAddons[k]={price:addonItems[k],expiresDate:expiry}; });
+      showToast('Add-ons subscribed!','ok');
+      addonItems={};addonDiscPct=0;
+      document.getElementById('a-discount-input').value='';
+      const am=document.getElementById('a-discount-msg');
+      if(am){am.textContent='';am.className='discount-msg';}
+      renderAddonRows();renderAddonSummary();renderAddonBanner();
+    }
+  );
+}
+
+/* MODAL */
+function openModal(title,bodyHTML,confirmLabel,isDanger,onConfirm){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=bodyHTML;
+  const btn=document.getElementById('modal-confirm-btn');
+  btn.textContent=confirmLabel;
+  btn.className='modal-btn '+(isDanger?'modal-btn-danger':'modal-btn-primary');
+  pendingAction=onConfirm;
+  document.getElementById('plan-modal').style.display='flex';
+}
+
+function openDowngradeToFreeSurvey(){
+  const cb='width:14px;height:14px;cursor:pointer;accent-color:var(--teal)';
+  const rb='width:14px;height:14px;cursor:pointer;accent-color:var(--teal)';
+  const lbl='display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--txt2);cursor:pointer';
+  const surveyHTML=`
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <p style="font-size:12.5px;color:var(--txt2);line-height:1.55">We'd love to keep you, but if you must go, your feedback helps us improve.</p>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:9px">1. What is your main reason for downgrading? <span style="color:#dc2626;font-weight:700">*</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <label style="${lbl}"><input class="surv-q1" type="checkbox" style="${cb}" onchange="checkSurveyReq()"> Price / budget is too high</label>
+          <label style="${lbl}"><input class="surv-q1" type="checkbox" style="${cb}" onchange="checkSurveyReq()"> Not using enough of the features</label>
+          <label style="${lbl}"><input class="surv-q1" type="checkbox" style="${cb}" onchange="checkSurveyReq()"> Product count decreased</label>
+          <label style="${lbl}"><input class="surv-q1" type="checkbox" style="${cb}" onchange="checkSurveyReq()"> Found a better alternative</label>
+          <label style="${lbl}"><input class="surv-q1" type="checkbox" style="${cb}" onchange="checkSurveyReq()"> Just testing — not ready to commit yet</label>
+          <label style="${lbl}"><input class="surv-q1" type="checkbox" style="${cb}" onchange="checkSurveyReq()"> Store closing / pausing</label>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:9px">2. How satisfied were you overall? <span style="color:#dc2626;font-weight:700">*</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <label style="${lbl}"><input class="surv-q2" type="radio" name="surv-q2" style="${rb}" onchange="checkSurveyReq()"> Very satisfied</label>
+          <label style="${lbl}"><input class="surv-q2" type="radio" name="surv-q2" style="${rb}" onchange="checkSurveyReq()"> Somewhat satisfied</label>
+          <label style="${lbl}"><input class="surv-q2" type="radio" name="surv-q2" style="${rb}" onchange="checkSurveyReq()"> Neutral</label>
+          <label style="${lbl}"><input class="surv-q2" type="radio" name="surv-q2" style="${rb}" onchange="checkSurveyReq()"> Dissatisfied</label>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:9px">3. What would make you upgrade again? <span style="font-weight:400;color:var(--muted)">(optional)</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <label style="${lbl}"><input class="surv-q3" type="checkbox" style="${cb}"> Lower price</label>
+          <label style="${lbl}"><input class="surv-q3" type="checkbox" style="${cb}"> More features</label>
+          <label style="${lbl}"><input class="surv-q3" type="checkbox" style="${cb}"> Better support</label>
+          <label style="${lbl}"><input class="surv-q3" type="checkbox" style="${cb}"> Nothing — won't upgrade</label>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:6px">Additional feedback <span style="font-weight:400;color:var(--muted)">(optional)</span></div>
+        <textarea placeholder="Tell us what we could do better..." style="width:100%;height:72px;padding:8px 10px;font-size:12px;border:1.5px solid var(--bdr2);border-radius:var(--r);resize:none;outline:none;font-family:var(--font);color:var(--txt);background:var(--s2);transition:border-color .15s" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--bdr2)'"></textarea>
+      </div>
+    </div>`;
+  openModal('Before you go…',surveyHTML,'Submit & downgrade to Free',true,()=>applyPlanChange('free'));
+  const btn=document.getElementById('modal-confirm-btn');
+  if(btn){btn.disabled=true;btn.style.opacity='0.4';btn.style.cursor='not-allowed';}
+}
+
+function checkSurveyReq(){
+  const q1=Array.from(document.querySelectorAll('.surv-q1')).some(c=>c.checked);
+  const q2=document.querySelector('.surv-q2:checked')!==null;
+  const btn=document.getElementById('modal-confirm-btn');
+  if(!btn) return;
+  const ok=q1&&q2;
+  btn.disabled=!ok;
+  btn.style.opacity=ok?'1':'0.4';
+  btn.style.cursor=ok?'pointer':'not-allowed';
+}
+
+function openPlanModal(targetPlan){
+  const fromP=PLANS[USER_PLAN];
+  const toP=PLANS[targetPlan];
+  const curIdx=PLAN_ORDER.indexOf(USER_PLAN);
+  const toIdx=PLAN_ORDER.indexOf(targetPlan);
+
+  if(targetPlan==='free'){
+    openDowngradeToFreeSurvey();
+    return;
+  }
+
+  if(targetPlan==='enterprise'){
+    openChatWithQuote();
+    return;
+  }
+
+  const isUp=toIdx>curIdx;
+  if(isUp){
+    const isAnn=billingMode==='annual'&&toP.annPx;
+    const raw=isAnn?toP.annPx*12:toP.price;
+    const suffix=isAnn?'/yr':'/mo';
+    const trial=fromP.price===0&&customerType==='new'&&!trialEnded?`<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ Your 14-day free trial starts today — no charge until it ends.</p>`:'';
+    const body=`
+      <div style="background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:.5rem">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
+          <span>${toP.name} Plan${isAnn?' (annual)':''}</span>
+          <span style="font-weight:500;color:var(--txt)">$${raw.toFixed(2)}${suffix}</span>
+        </div>
+        <div style="height:1px;background:var(--bdr2);margin:8px 0"></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-size:13px;font-weight:600;color:var(--txt)">Total</span>
+          <span style="font-size:18px;font-weight:700;color:var(--txt)">$${raw.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
+        </div>
+      </div>${trial}`;
+    openModal(`Upgrade to ${toP.name}`,body,'Process to Payment →',false,()=>applyPlanChange(targetPlan));
+  } else {
+    const note='<p>Your current plan stays active until the end of the billing period.</p>';
+    const body=`<p>Downgrading from <strong>${fromP.name}</strong> to <strong>${toP.name}</strong>.</p>${note}`;
+    openModal(`Downgrade to ${toP.name}`,body,'Confirm downgrade',true,()=>applyPlanChange(targetPlan));
+  }
+}
+
+/* Convert an active over50k trial straight to a paid subscription of the same plan (same order-summary + confirm flow as a normal upgrade) */
+function convertTrialToPaid(){
+  const plan=USER_PLAN;
+  const toP=PLANS[plan];
+  const isAnn=billingMode==='annual'&&toP.annPx;
+  const raw=isAnn?toP.annPx*12:toP.price;
+  const suffix=isAnn?'/yr':'/mo';
+  const body=`
+    <div style="background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:.5rem">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
+        <span>${toP.name} Plan${isAnn?' (annual)':''}</span>
+        <span style="font-weight:500;color:var(--txt)">$${raw.toFixed(2)}${suffix}</span>
+      </div>
+      <div style="height:1px;background:var(--bdr2);margin:8px 0"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:13px;font-weight:600;color:var(--txt)">Total</span>
+        <span style="font-size:18px;font-weight:700;color:var(--txt)">$${raw.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ You'll be charged today and continue on the ${toP.name} plan right away — no need to wait for your trial to end.</p>`;
+  openModal(`Upgrade to ${toP.name}`,body,'Process to Payment →',false,()=>{
+    trialEnded=true;
+    applyPlanChange(plan);
+  });
+}
+
+function applyPlanChange(targetPlan){
+  const selIdx=PLAN_ORDER.indexOf(targetPlan);
+  const curIdx=PLAN_ORDER.indexOf(USER_PLAN);
+  const isUp=selIdx>=curIdx;
+  if(customerType==='new'&&USER_PLAN==='free'&&targetPlan!=='free') trialEnded=true;
+  USER_PLAN=targetPlan;USER_BILLING=billingMode;
+  if(USER_PLAN!=='free'&&USER_PLAN!=='enterprise'){
+    const now=new Date();
+    planExpiresDate=billingMode==='annual'
+      ?new Date(now.getFullYear()+1,now.getMonth(),now.getDate())
+      :new Date(now.getFullYear(),now.getMonth()+1,now.getDate());
+  } else planExpiresDate=null;
+  discountPct=0;
+  const di=document.getElementById('discount-input');
+  const dm=document.getElementById('discount-msg');
+  if(di) di.value='';
+  if(dm){dm.textContent='';dm.className='discount-msg';}
+  renderDualCards();renderPlanSummary();initCurrentPlanBanner();
+  showToast(isUp?`Upgraded to ${PLANS[targetPlan].name} plan!`:`Downgraded to ${PLANS[targetPlan].name} plan.`,isUp?'ok':'info');
+}
+
+function closeModal(){
+  document.getElementById('plan-modal').style.display='none';
+  pendingAction=null;
+}
+
+function confirmModal(){
+  if(pendingAction) pendingAction();
+  closeModal();
+}
+
+function modalBgClick(e){
+  if(e.target.id==='plan-modal') closeModal();
+}
+
+/* CURRENT PLAN BANNER */
+function initCurrentPlanBanner(){
+  const cur=PLANS[USER_PLAN];
+  const nameEl=document.getElementById('cb-plan-name');
+  if(nameEl) nameEl.textContent=cur.name;
+
+  const trialBadge=document.getElementById('cb-trial-badge');
+  if(trialBadge) trialBadge.style.display=isOver50kOnTrial()?'inline-block':'none';
+
+  const expiryRow=document.getElementById('cb-plan-expiry');
+  const expiryTxt=document.getElementById('cb-expiry-txt');
+  if(expiryRow&&expiryTxt){
+    if(planExpiresDate&&cur.price!==0&&cur.price!==null){
+      const fmt=planExpiresDate.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+      expiryTxt.textContent=`Plan expires on: ${fmt}`;
+      expiryRow.style.display='flex';
+    } else if(over50k.active&&!over50k.trialStarted){
+      expiryRow.style.display='none';
+    } else if((customerType==='new'||customerType==='new_over50k')&&!trialEnded){
+      const trialEnd=new Date();trialEnd.setDate(trialEnd.getDate()+14);
+      const msLeft=trialEnd-new Date();
+      const daysLeft=Math.max(0,Math.ceil(msLeft/(1000*60*60*24)));
+      expiryTxt.textContent=`Trial expires in ${daysLeft} days`;
+      expiryRow.style.display='flex';
+    } else {
+      expiryRow.style.display='none';
+    }
+  }
+
+  const fillEl=document.getElementById('cb-lim-fill');
+  const lblEl=document.getElementById('cb-lim-lbl');
+  const warnEl=document.getElementById('cb-lim-warn');
+  const planLim=PLAN_LIMITS[USER_PLAN]||300;
+
+  if(storeProductCount>0&&planLim!==Infinity){
+    const used=storeProductCount;
+    const pct=Math.min(100,Math.round((used/planLim)*100));
+    const exceeded=used>planLim;
+    if(fillEl){fillEl.style.width=pct+'%';fillEl.style.background=exceeded?'#f59e0b':'var(--teal)';}
+    if(lblEl) lblEl.textContent=`${used.toLocaleString()} / ${planLim.toLocaleString()} products`;
+    if(warnEl){
+      const trialActive=(customerType==='new'||customerType==='new_over50k')&&!trialEnded;
+      if(exceeded&&!trialActive){
+        const rec=planForCount(used);
+        const lim=PLAN_LIMITS[USER_PLAN];
+        warnEl.textContent=customerType==='returning'
+          ?`⚠ To keep your store working well at no cost, your catalog shrinks 5% daily until only 300 remain. Upgrade to keep all visible`
+          :`⚠ Your catalog exceeds the free plan limit. Upgrade to show all your products.`;
+        warnEl.style.display='block';
+      } else { warnEl.style.display='none'; }
+    }
+  } else {
+    if(fillEl){fillEl.style.width=cur.limitPct+'%';fillEl.style.background='var(--teal)';}
+    if(lblEl) lblEl.textContent=cur.limitLabel+' products';
+    if(warnEl) warnEl.style.display='none';
+  }
+}
+
+/* CUSTOMER TYPE */
+function setCustomerType(type){
+  customerType=type;
+  trialEnded=false;
+  over50k={active:false,locked:false,trialStarted:false,count:0,plan:null};
+  setSliderLocked(false);
+  document.getElementById('ctype-new-over50k').classList.toggle('active',type==='new_over50k');
+  document.getElementById('ctype-new').classList.toggle('active',type==='new');
+  document.getElementById('ctype-old').classList.toggle('active',type==='returning');
+  renderDualCards();
+  initCurrentPlanBanner();
+  renderSubBtns();
+  if(type==='new_over50k') startOver50kScenario();
+}
+
+function renderSubBtns(){
+  const c=document.getElementById('ctype-sub-btns');
+  if(!c) return;
+  if(customerType==='new'||customerType==='new_over50k'){
+    const trialBtn=!trialEnded
+      ?`<button class="ctype-sub-btn" onclick="endTrial()">End Trial</button>`:'';
+    c.innerHTML=trialBtn+`<button class="ctype-sub-btn warn" onclick="endPlan()">End Plan</button>`;
+  } else if(customerType==='returning'){
+    c.innerHTML=`<button class="ctype-sub-btn warn" onclick="endPlan()">End Plan</button>`;
+  } else {
+    c.innerHTML='';
+  }
+}
+
+function endTrial(){
+  trialEnded=true;
+  renderDualCards();
+  initCurrentPlanBanner();
+  renderSubBtns();
+}
+
+function endPlan(){
+  USER_PLAN='free';
+  USER_BILLING='monthly';
+  billingMode='monthly';
+  planExpiresDate=null;
+  trialEnded=true;
+  over50k={active:false,locked:false,trialStarted:false,count:0,plan:null};
+  setSliderLocked(false);
+  renderDualCards();
+  initCurrentPlanBanner();
+  renderSubBtns();
+}
+
+/* KHÁCH MỚI > 50K FLOW */
+function setSliderLocked(locked){
+  const slider=document.getElementById('prod-slider');
+  const wrap=document.getElementById('slider-wrap');
+  const detectBtn=document.querySelector('.detect-btn');
+  if(slider) slider.disabled=locked;
+  if(wrap) wrap.style.opacity=locked?'0.6':'';
+  if(detectBtn){
+    detectBtn.disabled=locked;
+    detectBtn.style.opacity=locked?'0.5':'';
+    detectBtn.style.cursor=locked?'not-allowed':'';
+    detectBtn.style.pointerEvents=locked?'none':'';
+  }
+}
+
+function startOver50kScenario(){
+  const n=50001+Math.floor(Math.random()*(199999-50001+1));
+  over50k.active=true;
+  over50k.locked=true;
+  over50k.trialStarted=false;
+  over50k.count=n;
+  over50k.plan=planForCount(n);
+
+  storeProductCount=n;
+  localStorage.setItem(STORE_COUNT_KEY,String(n));
+  const inp=document.getElementById('opt-store-count');
+  if(inp) inp.value=n;
+
+  const pos=posForCount(n);
+  const slider=document.getElementById('prod-slider');
+  if(slider){slider.value=pos;onSlide(pos);}
+
+  const tick=document.getElementById('store-tick');
+  if(tick){tick.style.left=pos+'%';tick.style.display='block';}
+  const tickLbl=document.getElementById('store-tick-lbl');
+  const tickRow=document.getElementById('store-lbl-row');
+  if(tickLbl) tickLbl.style.left=pos+'%';
+  if(tickRow) tickRow.style.display='block';
+
+  setSliderLocked(true);
+  initCurrentPlanBanner();
+}
+
+function startOver50kTrial(){
+  if(!chatIsOpen) toggleChat();
+  const userMsg='Start 14d trials';
+  setTimeout(()=>{
+    chatAddMsg(userMsg,'user');
+    chatShowTyping();
+    setTimeout(()=>{
+      chatHideTyping();
+      chatAddMsg('Thank you! 🎉 Your 14-day free trial has been successfully activated for your store.','bot');
+      activateOver50kTrial();
+    },1200);
+  },300);
+}
+
+function activateOver50kTrial(){
+  over50k.trialStarted=true;
+  over50k.locked=false;
+  USER_PLAN=over50k.plan;
+  USER_BILLING=billingMode;
+  planExpiresDate=null;
+  trialEnded=false;
+  setSliderLocked(false);
+  renderDualCards();
+  initCurrentPlanBanner();
+  renderSubBtns();
+  showToast(`14-day trial activated — current plan: ${PLANS[over50k.plan].name}!`,'ok');
+}
+
+/* OPTIONS BAR */
+const STORE_COUNT_KEY='findter_store_count';
+function setStoreCount(val){
+  const n=parseInt(val,10);
+  if(isNaN(n)||n<0){localStorage.removeItem(STORE_COUNT_KEY);storeProductCount=0;}
+  else{storeProductCount=n;localStorage.setItem(STORE_COUNT_KEY,String(n));}
+  initCurrentPlanBanner();
+}
+
+/* DETECT PRODUCTS */
+function detectProducts(){
+  const result=document.getElementById('detect-result');
+  if(!storeProductCount){
+    result.textContent='Set your store product count in the options bar above first.';
+    result.style.display='inline';
+    return;
+  }
+  const storeCount=storeProductCount;
+  const pos=posForCount(storeCount);
+  const slider=document.getElementById('prod-slider');
+  if(slider){slider.value=pos;onSlide(pos);}
+  const tick=document.getElementById('store-tick');
+  if(tick){tick.style.left=pos+'%';tick.style.display='block';}
+  const lbl=document.getElementById('store-tick-lbl');
+  const row=document.getElementById('store-lbl-row');
+  if(lbl) lbl.style.left=pos+'%';
+  if(row) row.style.display='block';
+  initCurrentPlanBanner();
+  const rec=planForCount(storeCount);
+  const curOrd=PLAN_ORDER.indexOf(USER_PLAN);
+  const recOrd=PLAN_ORDER.indexOf(rec);
+  if(USER_PLAN!=='free'&&curOrd>=recOrd){
+    result.textContent=`${fmtCount(storeCount)} products — you're on a great fit plan ✓`;
+  } else {
+    result.textContent=`${fmtCount(storeCount)} products detected → ${PLANS[rec].name} recommended`;
+  }
+  result.style.display='inline';
+}
+
+/* ADDON BANNER */
+function renderAddonBanner(){
+  const keys=Object.keys(subscribedAddons);
+  const banner=document.getElementById('addon-banner');
+  const items=document.getElementById('addon-banner-items');
+  if(!banner) return;
+  if(keys.length===0){banner.style.display='none';return;}
+  banner.style.display='flex';
+  items.innerHTML=keys.map(k=>{
+    const fmt=subscribedAddons[k].expiresDate.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    return `<div class="addon-banner-item"><i class="ti ti-circle-check-filled"></i><strong>${ADDON_LABELS[k]}</strong> &mdash; Renews ${fmt}</div>`;
+  }).join('');
+}
+
+/* FAQ */
+function toggleFaq(btn){
+  const ans=btn.nextElementSibling;
+  const was=ans.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
+  document.querySelectorAll('.faq-q').forEach(q=>q.classList.remove('open'));
+  if(!was){ans.classList.add('open');btn.classList.add('open');}
+}
+
+/* TOAST */
+function showToast(msg,type='ok'){
+  const old=document.getElementById('plan-toast');
+  if(old) old.remove();
+  const t=document.createElement('div');
+  t.id='plan-toast';t.className=`plan-toast ${type}`;
+  t.innerHTML=`<i class="ti ti-${type==='ok'?'circle-check':'arrow-down-right'}"></i> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(()=>{if(t.parentNode)t.remove();},3500);
+}
+
+/* CHAT */
+let chatIsOpen=false;
+
+function toggleChat(){
+  chatIsOpen=!chatIsOpen;
+  const box=document.getElementById('chat-box');
+  const icon=document.getElementById('chat-bubble-icon');
+  box.classList.toggle('open',chatIsOpen);
+  icon.className=chatIsOpen?'ti ti-x':'ti ti-message-circle';
+  if(chatIsOpen) document.getElementById('chat-text-input').focus();
+}
+
+function openChatWithQuote(){
+  if(!chatIsOpen) toggleChat();
+  const autoMsg="Hi! We have over 200k products and want a custom quote for Enterprise Plan";
+  setTimeout(()=>{
+    chatAddMsg(autoMsg,'user');
+    chatShowTyping();
+    setTimeout(()=>{
+      chatHideTyping();
+      chatAddMsg("Thanks for getting in touch! 🎉 One of our team members will reach out within 24 hours to put together a custom quote for you. Feel free to share any extra details below in the meantime.",'bot');
+    },1500);
+  },300);
+}
+
+function chatAddMsg(text,from){
+  const msgs=document.getElementById('chat-msgs');
+  const now=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const div=document.createElement('div');
+  div.className=`chat-msg chat-msg-${from}`;
+  div.innerHTML=`<div class="chat-msg-bubble">${text}</div><div class="chat-msg-time">${now}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function chatShowTyping(){
+  const msgs=document.getElementById('chat-msgs');
+  const div=document.createElement('div');
+  div.id='chat-typing';div.className='chat-msg chat-msg-bot';
+  div.innerHTML=`<div class="chat-msg-bubble chat-typing-dots"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function chatHideTyping(){
+  const el=document.getElementById('chat-typing');
+  if(el) el.remove();
+}
+
+function chatSend(){
+  const inp=document.getElementById('chat-text-input');
+  const val=inp.value.trim();
+  if(!val) return;
+  chatAddMsg(val,'user');
+  inp.value='';
+  chatShowTyping();
+  setTimeout(()=>{
+    chatHideTyping();
+    chatAddMsg("Thanks for your message! Our team will follow up with you shortly. 😊",'bot');
+  },1000);
+}
+
+function chatKeyDown(e){if(e.key==='Enter')chatSend();}
+
+/* DISCOUNT MODAL */
+const DISC_CODES={'SAVE10':10,'SAVE20':20,'SAVE15':15,'FINDTER':17,'WELCOME':25};
+
+function openDiscountModal(plan){
+  pendingDiscPlan=plan;
+  pendingDiscBill=billingMode;
+  cardDiscountPct=0;
+  const input=document.getElementById('disc-code-input');
+  const msg=document.getElementById('disc-msg');
+  const summary=document.getElementById('disc-summary-section');
+  const btn=document.getElementById('disc-confirm-btn');
+  if(input){input.value='';}
+  if(msg){msg.textContent='';msg.className='discount-msg';}
+  if(summary){summary.style.display='none';summary.innerHTML='';}
+  if(btn){btn.textContent='Process to Payment →';btn.onclick=processDiscPayment;}
+  const actions=document.getElementById('disc-modal-actions');
+  if(actions) actions.style.display='none';
+  document.getElementById('disc-modal').style.display='flex';
+  setTimeout(()=>{if(input)input.focus();},60);
+}
+
+function applyCardDiscount(){
+  const code=(document.getElementById('disc-code-input').value||'').trim().toUpperCase();
+  const msg=document.getElementById('disc-msg');
+  const pct=DISC_CODES[code];
+  if(!code){
+    msg.textContent='Please enter a discount code.';msg.className='discount-msg err';return;
+  }
+  if(!pct){
+    msg.textContent='Invalid or expired code. Try SAVE10, SAVE20, or WELCOME.';msg.className='discount-msg err';return;
+  }
+  cardDiscountPct=pct;
+  msg.textContent=`Code "${code}" applied — ${pct}% off!`;msg.className='discount-msg ok';
+  renderDiscSummary(pct);
+  document.getElementById('disc-summary-section').style.display='block';
+  document.getElementById('disc-modal-actions').style.display='flex';
+}
+
+function renderDiscSummary(pct){
+  const plan=PLANS[pendingDiscPlan];
+  const isAnn=pendingDiscBill==='annual'&&plan.price!==null;
+  const raw=isAnn?plan.annPx*12:plan.price;
+  const final=raw*(1-pct/100);
+  const suffix=isAnn?'/yr':'/mo';
+  const saving=(raw-final).toFixed(2);
+  const trial=USER_PLAN==='free'&&customerType==='new'&&!trialEnded
+    ?`<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ Your 14-day free trial starts today — no charge until it ends.</p>`
+    :'';
+  document.getElementById('disc-summary-section').innerHTML=`
+    <div style="margin-top:14px;padding:12px 14px;background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr)">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
+        <span>${plan.name} Plan${isAnn?' (annual)':''}</span>
+        <span style="font-weight:500;color:var(--txt)">$${raw.toFixed(2)}${suffix}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--teal-dk)">
+        <span style="font-weight:600">Discount (${pct}%)</span>
+        <span style="font-weight:700">-$${saving}</span>
+      </div>
+      <div style="height:1px;background:var(--bdr2);margin:8px 0"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:13px;font-weight:600;color:var(--txt)">Total</span>
+        <span style="font-size:20px;font-weight:700;color:var(--txt)">$${final.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
+      </div>
+    </div>${trial}`;
+}
+
+function processDiscPayment(){
+  const plan=pendingDiscPlan;
+  closeDiscModal();
+  applyPlanChange(plan);
+}
+
+function closeDiscModal(){
+  document.getElementById('disc-modal').style.display='none';
+  cardDiscountPct=0;pendingDiscPlan=null;
+}
+
+function discModalBgClick(e){
+  if(e.target.id==='disc-modal') closeDiscModal();
+}
+
+/* INIT */
+buildMilestones();
+buildAddonList();
+(function(){
+  const saved=parseInt(localStorage.getItem(STORE_COUNT_KEY)||'',10);
+  if(!isNaN(saved)&&saved>0){
+    storeProductCount=saved;
+    const inp=document.getElementById('opt-store-count');
+    if(inp) inp.value=saved;
+  }
+  const initPos=storeProductCount?posForCount(storeProductCount):0;
+  const slider=document.getElementById('prod-slider');
+  if(slider){slider.value=initPos;onSlide(initPos);}
+})();
+renderDualCards();
+renderPlanSummary();
+renderAddonSummary();renderAddonBanner();
+initCurrentPlanBanner();
+renderSubBtns();
+(function(){
+  const el=document.getElementById('chat-greeting-time');
+  if(el) el.textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+})();
+</script>
+
+<!-- CHAT BUBBLE -->
+<button class="chat-bubble-btn" id="chat-bubble-btn" onclick="toggleChat()" aria-label="Chat with us">
+  <i class="ti ti-message-circle" id="chat-bubble-icon"></i>
+</button>
+
+<!-- CHAT BOX -->
+<div class="chat-box" id="chat-box">
+  <div class="chat-hd">
+    <div class="chat-hd-left">
+      <div class="chat-hd-avatar"><i class="ti ti-headset"></i></div>
+      <div>
+        <div class="chat-hd-name">Findter Support</div>
+        <div class="chat-hd-status"><span class="chat-hd-dot"></span> Online — we reply within 24h</div>
+      </div>
+    </div>
+    <button class="chat-hd-close" onclick="toggleChat()"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="chat-msg chat-msg-bot">
+      <div class="chat-msg-bubble">Hi there! 👋 How can we help you today? Ask us anything about our plans, features, or pricing.</div>
+      <div class="chat-msg-time" id="chat-greeting-time"></div>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-text-input" id="chat-text-input" placeholder="Type a message..." onkeydown="chatKeyDown(event)"/>
+    <button class="chat-send-btn" onclick="chatSend()"><i class="ti ti-send"></i></button>
+  </div>
+</div>
+</body>
+</html>
