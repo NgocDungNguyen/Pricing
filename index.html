@@ -879,12 +879,12 @@
                     </button>
                 </div>
                 <div class="px-6 py-5">
-                    <p class="text-[13px] text-[#303030] leading-relaxed">This user segment will still receive a 14-day free trial, but will need a separate flow of their own.</p>
+                    <p class="text-[13px] text-[#303030] leading-relaxed">This user segment will still receive a 14-day free trial, but will need a separate flow of their own. Click <strong>"Start 14d trial"</strong> below to activate their trial and go to the Pricing page.</p>
                 </div>
                 <div class="flex items-center justify-end px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
                     <button type="button" id="group3plus-modal-pricing-btn" class="bg-[#303030] text-white rounded-[6px] px-5 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors flex items-center gap-2">
-                        <i class="fas fa-tag text-xs"></i>
-                        Go to Pricing
+                        <i class="fas fa-rocket text-xs"></i>
+                        Start 14d trial
                     </button>
                 </div>
             </div>
@@ -2528,7 +2528,7 @@
         if (group3plusModalOverlay) group3plusModalOverlay.addEventListener('click', closeGroup3PlusModal);
         if (group3plusModalPricingBtn) {
             group3plusModalPricingBtn.addEventListener('click', function() {
-                window.location.href = 'pricing.html';
+                window.location.href = 'pricing.html?ctype=new_over50k';
             });
         }
 

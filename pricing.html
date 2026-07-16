@@ -824,7 +824,7 @@ let pendingDiscBill = null;
 let storeProductCount = 0;
 let customerType = 'new'; // 'new' | 'new_over50k' | 'returning'
 let trialEnded = false;
-let over50k = { active:false, locked:false, trialStarted:false, count:0, plan:null }; // 'Khách mới > 50k' simulated flow
+let over50k = { active:false, trialStarted:false, count:0, plan:null }; // 'Khách mới > 50k' simulated flow — trial activates immediately, slider always stays draggable
 
 function isOver50kOnTrial(){
   return over50k.active && over50k.trialStarted && !trialEnded;
@@ -943,11 +943,9 @@ function renderFreeCard(){
   const isOpen=cardFeatsOpen.free;
   const featItems=PLAN_FEATURES_SHORT.free.map(f=>
     `<div class="feat-collapse-item"><i class="ti ti-check"></i>${f}</div>`).join('');
-  const cta=(over50k.active&&over50k.locked)
-    ?`<button class="card-cta noop" disabled><i class="ti ti-lock"></i> Not available</button>`
-    :(isCurrent
-      ?`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`
-      :`<button class="card-cta downgrade" onclick="openPlanModal('free')"><i class="ti ti-arrow-down-right"></i> Downgrade to Free</button>`);
+  const cta=isCurrent
+    ?`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`
+    :`<button class="card-cta downgrade" onclick="openPlanModal('free')"><i class="ti ti-arrow-down-right"></i> Downgrade to Free</button>`;
   return `
     <div class="plan-card free-card">
       <div class="pc-top-area"></div>
@@ -970,8 +968,7 @@ function renderFreeCard(){
 }
 
 function renderSelCard(){
-  const over50kLocked=over50k.active&&over50k.locked;
-  const displayPlan=over50kLocked?over50k.plan:(selPlan==='free'?'starter':selPlan);
+  const displayPlan=selPlan==='free'?'starter':selPlan;
 
   const p=PLANS[displayPlan];
   const isQuote=displayPlan==='enterprise';
@@ -983,9 +980,9 @@ function renderSelCard(){
   const isOpen=cardFeatsOpen.sel;
 
   const isBillSwitch=isCurrent&&!isQuote&&billingMode!==USER_BILLING;
-  const onTrial=isCurrent&&isOver50kOnTrial();
+  const onTrial=isCurrent&&displayPlan===over50k.plan&&isOver50kOnTrial();
   const extraClass=isAnn&&!isQuote?' annual-card':'';
-  const showDiscount=!isQuote&&!over50kLocked&&(!isCurrent||onTrial||(isBillSwitch&&billingMode==='annual'));
+  const showDiscount=!isQuote&&(!isCurrent||onTrial||(isBillSwitch&&billingMode==='annual'));
   const discountLink=showDiscount
     ?`<button class="card-discount-link" onclick="openDiscountModal('${displayPlan}')">Have a discount code?</button>`
     :'';
@@ -993,7 +990,7 @@ function renderSelCard(){
   const pill='';
 
   const monthlyLocked=USER_BILLING==='annual';
-  const billingToggle=(isQuote||over50kLocked)?'':`
+  const billingToggle=isQuote?'':`
     <div class="card-billing-inner">
       <button class="card-bill-tab${billingMode==='monthly'?' active':''}" onclick="selectBilling('monthly')"${monthlyLocked?' style="opacity:.45;cursor:not-allowed"':''}>Monthly</button>
       <button class="card-bill-tab${billingMode==='annual'?' active':''}" onclick="selectBilling('annual')">Annually<span class="card-bill-save">-10%</span></button>
@@ -1020,9 +1017,7 @@ function renderSelCard(){
     :`<span class="pc-limit"><i class="ti ti-package"></i> Up to ${p.limitLabel} products</span>`;
 
   let cta='';
-  if(over50kLocked){
-    cta=`<button class="card-cta upgrade" onclick="startOver50kTrial()"><i class="ti ti-rocket"></i> Start 14d trial now</button>`;
-  } else if(isQuote){
+  if(isQuote){
     cta=`<button class="card-cta upgrade" onclick="openPlanModal('enterprise')"><i class="ti ti-mail"></i> Contact us for a quote</button>`;
   } else if(onTrial){
     cta=`<button class="card-cta noop" disabled><i class="ti ti-clock"></i> On Trials</button>
@@ -1457,7 +1452,7 @@ function initCurrentPlanBanner(){
   if(nameEl) nameEl.textContent=cur.name;
 
   const trialBadge=document.getElementById('cb-trial-badge');
-  if(trialBadge) trialBadge.style.display=isOver50kOnTrial()?'inline-block':'none';
+  if(trialBadge) trialBadge.style.display=(isOver50kOnTrial()&&USER_PLAN===over50k.plan)?'inline-block':'none';
 
   const expiryRow=document.getElementById('cb-plan-expiry');
   const expiryTxt=document.getElementById('cb-expiry-txt');
@@ -1466,8 +1461,6 @@ function initCurrentPlanBanner(){
       const fmt=planExpiresDate.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
       expiryTxt.textContent=`Plan expires on: ${fmt}`;
       expiryRow.style.display='flex';
-    } else if(over50k.active&&!over50k.trialStarted){
-      expiryRow.style.display='none';
     } else if((customerType==='new'||customerType==='new_over50k')&&!trialEnded){
       const trialEnd=new Date();trialEnd.setDate(trialEnd.getDate()+14);
       const msLeft=trialEnd-new Date();
@@ -1512,15 +1505,14 @@ function initCurrentPlanBanner(){
 function setCustomerType(type){
   customerType=type;
   trialEnded=false;
-  over50k={active:false,locked:false,trialStarted:false,count:0,plan:null};
-  setSliderLocked(false);
+  over50k={active:false,trialStarted:false,count:0,plan:null};
   document.getElementById('ctype-new-over50k').classList.toggle('active',type==='new_over50k');
   document.getElementById('ctype-new').classList.toggle('active',type==='new');
   document.getElementById('ctype-old').classList.toggle('active',type==='returning');
   renderDualCards();
   initCurrentPlanBanner();
   renderSubBtns();
-  if(type==='new_over50k') startOver50kScenario();
+  if(type==='new_over50k') activateOver50kFlow();
 }
 
 function renderSubBtns(){
@@ -1550,33 +1542,17 @@ function endPlan(){
   billingMode='monthly';
   planExpiresDate=null;
   trialEnded=true;
-  over50k={active:false,locked:false,trialStarted:false,count:0,plan:null};
-  setSliderLocked(false);
+  over50k={active:false,trialStarted:false,count:0,plan:null};
   renderDualCards();
   initCurrentPlanBanner();
   renderSubBtns();
 }
 
-/* KHÁCH MỚI > 50K FLOW */
-function setSliderLocked(locked){
-  const slider=document.getElementById('prod-slider');
-  const wrap=document.getElementById('slider-wrap');
-  const detectBtn=document.querySelector('.detect-btn');
-  if(slider) slider.disabled=locked;
-  if(wrap) wrap.style.opacity=locked?'0.6':'';
-  if(detectBtn){
-    detectBtn.disabled=locked;
-    detectBtn.style.opacity=locked?'0.5':'';
-    detectBtn.style.cursor=locked?'not-allowed':'';
-    detectBtn.style.pointerEvents=locked?'none':'';
-  }
-}
-
-function startOver50kScenario(){
+/* KHÁCH MỚI > 50K FLOW — trial activates immediately, slider stays freely draggable throughout */
+function activateOver50kFlow(){
   const n=50001+Math.floor(Math.random()*(199999-50001+1));
   over50k.active=true;
-  over50k.locked=true;
-  over50k.trialStarted=false;
+  over50k.trialStarted=true;
   over50k.count=n;
   over50k.plan=planForCount(n);
 
@@ -1596,32 +1572,11 @@ function startOver50kScenario(){
   if(tickLbl) tickLbl.style.left=pos+'%';
   if(tickRow) tickRow.style.display='block';
 
-  setSliderLocked(true);
-  initCurrentPlanBanner();
-}
-
-function startOver50kTrial(){
-  if(!chatIsOpen) toggleChat();
-  const userMsg='Start 14d trials';
-  setTimeout(()=>{
-    chatAddMsg(userMsg,'user');
-    chatShowTyping();
-    setTimeout(()=>{
-      chatHideTyping();
-      chatAddMsg('Thank you! 🎉 Your 14-day free trial has been successfully activated for your store.','bot');
-      activateOver50kTrial();
-    },1200);
-  },300);
-}
-
-function activateOver50kTrial(){
-  over50k.trialStarted=true;
-  over50k.locked=false;
   USER_PLAN=over50k.plan;
   USER_BILLING=billingMode;
   planExpiresDate=null;
   trialEnded=false;
-  setSliderLocked(false);
+
   renderDualCards();
   initCurrentPlanBanner();
   renderSubBtns();
@@ -1869,6 +1824,12 @@ renderSubBtns();
 (function(){
   const el=document.getElementById('chat-greeting-time');
   if(el) el.textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+})();
+(function(){
+  // Arriving from Homepage's "Group 3 > 50k" notice modal ("Start 14d trial" button)
+  // lands here already in the Khách mới > 50k trial-active state.
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('ctype')==='new_over50k') setCustomerType('new_over50k');
 })();
 </script>
 
