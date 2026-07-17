@@ -608,7 +608,6 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
       <span class="modal-title-txt">Discount code</span>
       <button class="modal-close-btn" onclick="closeDiscModal()">&times;</button>
     </div>
-    <div id="disc-trial-notice"></div>
     <div style="margin-bottom:1rem">
       <div class="discount-row">
         <input class="discount-input" id="disc-code-input" type="text" placeholder="Enter your code..." style="text-transform:uppercase" onkeydown="if(event.key==='Enter')applyCardDiscount()"/>
@@ -826,21 +825,15 @@ let pendingDiscBill = null;
 let storeProductCount = 0;
 let customerType = 'new'; // 'new' | 'new_over50k' | 'returning'
 let trialEnded = false;
-let over50k = { active:false, trialStarted:false, count:0, plan:null }; // 'Khách mới > 50k' simulated flow — trial activates immediately, slider always stays draggable
-let regularTrial = { plan:null, active:false }; // trial started via a per-card "Start 14-day trial" button (Khách mới < 50k)
-
-function isOver50kOnTrial(){
-  return over50k.active && over50k.trialStarted && !trialEnded;
-}
+let regularTrial = { plan:null, active:false }; // currently active, unconverted trial (auto-activated or via a per-card "Start trial" click)
 
 function isRegularTrialOnTrial(){
   return regularTrial.active && regularTrial.plan!=null && !trialEnded;
 }
 
-/* True whenever USER_PLAN is an active, unconverted trial — via either the over50k
-   auto-activation mechanism or a manual per-card "Start 14-day trial" click. */
+/* True whenever USER_PLAN is an active, unconverted trial */
 function isCurrentPlanOnTrial(){
-  return (isOver50kOnTrial()&&USER_PLAN===over50k.plan) || (isRegularTrialOnTrial()&&USER_PLAN===regularTrial.plan);
+  return isRegularTrialOnTrial()&&USER_PLAN===regularTrial.plan;
 }
 
 /* Days left on the customer's currently active, unconverted trial — null if not on trial */
@@ -1077,18 +1070,16 @@ function renderSelCard(){
     cta=`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`;
   } else if(trialEligible){
     const tooSmall=planFitStatus(displayPlan)==='too_small';
-    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-rocket"></i> Start 14-day trial</button>${tooSmallNoticeHTML(displayPlan)}`;
+    const label=customerType==='new_over50k'?'Start Trial Now':'Start 14-day trial';
+    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-rocket"></i> ${label}</button>${tooSmallNoticeHTML(displayPlan)}`;
   } else if(isUp){
     // Upgrading is always allowed, trial or not — only the plan-fit notice applies (never disabled).
     cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>${tooSmallNoticeHTML(displayPlan)}`;
   } else {
-    // While an active trial is running, only moving up is allowed — downgrading is blocked
-    // entirely. Once the trial has ended (or was never eligible), downgrading stays clickable
-    // even when the target plan is smaller than the real catalog — the customer may genuinely
-    // accept trimming their catalog, or accept the shrink-5%/day consequence shown on the
-    // Current Plan banner once they land there.
-    const duringTrial=isCurrentPlanOnTrial();
-    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"${duringTrial?' disabled':''}><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>${tooSmallNoticeHTML(displayPlan)}`;
+    // Downgrading always stays clickable, trial or not — the customer may genuinely accept
+    // trimming their catalog, or accept the shrink-5%/day consequence shown on the Current
+    // Plan banner once they land there. Only the plan-fit notice applies (never disabled).
+    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>${tooSmallNoticeHTML(displayPlan)}`;
   }
 
   return `
@@ -1421,9 +1412,9 @@ function openPlanModal(targetPlan){
     const suffix=isAnn?'/yr':'/mo';
     const trial=fromP.price===0&&customerType==='new'&&!trialEnded?`<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ Your 14-day free trial starts today — no charge until it ends.</p>`:'';
     const body=`
-      ${trialDaysLeftNoticeHTML()}
       <div style="background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:.5rem">
         <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
+        ${trialDaysLeftNoticeHTML()}
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
           <span>${toP.name} Plan${isAnn?' (annual)':''}</span>
           <span style="font-weight:500;color:var(--txt)">$${raw.toFixed(2)}${suffix}</span>
@@ -1442,7 +1433,7 @@ function openPlanModal(targetPlan){
   }
 }
 
-/* Convert an active over50k trial straight to a paid subscription of the same plan (same order-summary + confirm flow as a normal upgrade) */
+/* Convert an active trial straight to a paid subscription of the same plan (same order-summary + confirm flow as a normal upgrade) */
 function convertTrialToPaid(){
   const plan=USER_PLAN;
   const toP=PLANS[plan];
@@ -1450,9 +1441,9 @@ function convertTrialToPaid(){
   const raw=isAnn?toP.annPx*12:toP.price;
   const suffix=isAnn?'/yr':'/mo';
   const body=`
-    ${trialDaysLeftNoticeHTML()}
     <div style="background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:.5rem">
       <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
+      ${trialDaysLeftNoticeHTML()}
       <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
         <span>${toP.name} Plan${isAnn?' (annual)':''}</span>
         <span style="font-weight:500;color:var(--txt)">$${raw.toFixed(2)}${suffix}</span>
@@ -1473,6 +1464,10 @@ function convertTrialToPaid(){
 /* "Start 14-day trial" button on a plan card (Khách mới < 50k, trial still available) */
 function startRegularTrial(plan){
   const fit=planFitStatus(plan);
+  // A >50k customer always gets the "we may need to confirm before using a costlier server"
+  // caution message, regardless of actual fit — the risk of over-provisioning a server for a
+  // catalog that doesn't need it applies to every plan they pick, not just oversized ones.
+  const caution=customerType==='new_over50k'||fit==='oversized';
   regularTrial={plan:plan,active:true};
   USER_PLAN=plan;
   USER_BILLING=billingMode;
@@ -1489,7 +1484,7 @@ function startRegularTrial(plan){
     chatShowTyping();
     setTimeout(()=>{
       chatHideTyping();
-      chatAddMsg(fit==='oversized'
+      chatAddMsg(caution
         ?`Your 14-day trial on the ${PLANS[plan].name} plan is active! We noticed your product count is lower than this plan's limit — we may follow up to confirm before moving your store.`
         :`Your 14-day free trial on the ${PLANS[plan].name} plan is now active! 🎉 You're all set.`,
         'bot');
@@ -1585,10 +1580,9 @@ function initCurrentPlanBanner(){
 }
 
 /* CUSTOMER TYPE */
-function setCustomerType(type, autoActivateOver50k){
+function setCustomerType(type){
   customerType=type;
   trialEnded=false;
-  over50k={active:false,trialStarted:false,count:0,plan:null};
   regularTrial={plan:null,active:false};
   document.getElementById('ctype-new-over50k').classList.toggle('active',type==='new_over50k');
   document.getElementById('ctype-new').classList.toggle('active',type==='new');
@@ -1596,13 +1590,9 @@ function setCustomerType(type, autoActivateOver50k){
   renderDualCards();
   initCurrentPlanBanner();
   renderSubBtns();
-  if(type==='new_over50k'){
-    // Selecting this on the page itself only seeds a representative >50k product count so the
-    // per-card "Start 14-day trial" buttons reflect it — it does NOT start any trial by itself.
-    // Only the Homepage "Activate Free Trial" banner button (?ctype=new_over50k) auto-activates.
-    if(autoActivateOver50k) activateOver50kTrialImmediately();
-    else seedOver50kProductCount();
-  }
+  // Just seeds a representative >50k product count so the per-card "Start Trial Now" buttons
+  // reflect it — no trial starts until the customer clicks one themselves.
+  if(type==='new_over50k') seedOver50kProductCount();
 }
 
 function renderSubBtns(){
@@ -1619,15 +1609,14 @@ function renderSubBtns(){
   }
 }
 
-/* A trial (over50k or per-card) was never paid for — ending it always falls back to Free,
-   same as a plan that's cancelled outright. */
+/* A trial was never paid for — ending it always falls back to Free, same as a plan that's
+   cancelled outright. */
 function resetToFreePlan(){
   USER_PLAN='free';
   USER_BILLING='monthly';
   billingMode='monthly';
   planExpiresDate=null;
   trialEnded=true;
-  over50k={active:false,trialStarted:false,count:0,plan:null};
   regularTrial={plan:null,active:false};
 }
 
@@ -1677,17 +1666,14 @@ function seedUnder50kProductCount(){
   seedProductCount(500+Math.floor(Math.random()*(49999-500+1)));
 }
 
-/* Homepage "Activate Free Trial" banner button (?ctype=new_over50k) only — pre-activates
-   the trial for the matched plan immediately, skipping the manual "Start 14-day trial" click. */
-function activateOver50kTrialImmediately(){
-  seedOver50kProductCount();
+/* Homepage "Group 3 < 50k" entry only — pre-activates the trial for the matched plan
+   immediately on arrival, skipping the manual "Start 14-day trial" card click entirely. */
+function activateUnder50kTrialImmediately(){
+  seedUnder50kProductCount();
+  const plan=planForCount(storeProductCount);
 
-  over50k.active=true;
-  over50k.trialStarted=true;
-  over50k.count=storeProductCount;
-  over50k.plan=planForCount(storeProductCount);
-
-  USER_PLAN=over50k.plan;
+  regularTrial={plan:plan,active:true};
+  USER_PLAN=plan;
   USER_BILLING=billingMode;
   planExpiresDate=null;
   trialEnded=false;
@@ -1695,26 +1681,7 @@ function activateOver50kTrialImmediately(){
   renderDualCards();
   initCurrentPlanBanner();
   renderSubBtns();
-  showToast(`14-day trial activated — current plan: ${PLANS[over50k.plan].name}!`,'ok');
-
-  announceServerMigration();
-}
-
-/* Auto chat sequence letting the user know their store is being moved to a server sized for their catalog */
-function announceServerMigration(){
-  setTimeout(()=>{
-    if(!chatIsOpen) toggleChat();
-    chatShowTyping();
-    setTimeout(()=>{
-      chatHideTyping();
-      chatAddMsg("Welcome aboard! 🎉 Your 14-day trial is active. We're moving your store to a higher-capacity server — hang tight.",'bot');
-      chatShowTyping();
-      setTimeout(()=>{
-        chatHideTyping();
-        chatAddMsg("All set! ✅ Your store is running on the upgraded server, indexing will be fast.",'bot');
-      },2200);
-    },900);
-  },1500);
+  showToast(`14-day trial activated — current plan: ${PLANS[plan].name}!`,'ok');
 }
 
 /* OPTIONS BAR */
@@ -1871,8 +1838,6 @@ function openDiscountModal(plan){
   if(btn){btn.textContent='Process to Payment →';btn.onclick=processDiscPayment;}
   const actions=document.getElementById('disc-modal-actions');
   if(actions) actions.style.display='none';
-  const trialNotice=document.getElementById('disc-trial-notice');
-  if(trialNotice) trialNotice.innerHTML=trialDaysLeftNoticeHTML();
   document.getElementById('disc-modal').style.display='flex';
   setTimeout(()=>{if(input)input.focus();},60);
 }
@@ -1907,6 +1872,7 @@ function renderDiscSummary(pct){
   document.getElementById('disc-summary-section').innerHTML=`
     <div style="margin-top:14px;padding:12px 14px;background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr)">
       <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
+      ${trialDaysLeftNoticeHTML()}
       <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
         <span>${plan.name} Plan${isAnn?' (annual)':''}</span>
         <span style="font-weight:500;color:var(--txt)">$${raw.toFixed(2)}${suffix}</span>
@@ -1962,18 +1928,16 @@ renderSubBtns();
   if(el) el.textContent=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
 })();
 (function(){
-  // Arriving from the Homepage's Indexing banner "Activate Free Trial" button — this is the
-  // ONLY entry point that pre-activates the trial immediately.
-  const params=new URLSearchParams(window.location.search);
-  if(params.get('ctype')==='new_over50k'){
-    setCustomerType('new_over50k', true);
-    return;
-  }
-
-  // Arriving directly (sidebar "Pricing" link) while Group 3 </>50k was selected on the
-  // Homepage: select the matching "Khách mới" nav option and pre-fill a representative store
-  // product count so the "Start 14-day trial" buttons on each plan card already reflect a
-  // realistic fit (case 1.1/1.2/1.3), without forcing any plan or auto-activating a trial.
+  // Arriving while Group 3 </>50k was selected on the Homepage — same result whether they
+  // clicked the Homepage banner's "Activate Free Trial" button or the sidebar "Pricing" link
+  // directly, since both just navigate to this page.
+  //
+  // Group 3 > 50k: select the matching nav option and pre-fill a representative store product
+  // count so each plan card's "Start Trial Now" button reflects a realistic fit — no trial
+  // starts until the customer clicks one themselves.
+  //
+  // Group 3 < 50k: the trial for the matching plan is activated immediately on arrival — no
+  // manual "Start 14-day trial" click needed for this group.
   const group=localStorage.getItem('findter_pricing_group');
   if(group==='group3plus'){
     localStorage.removeItem('findter_pricing_group');
@@ -1981,7 +1945,7 @@ renderSubBtns();
   } else if(group==='group3'){
     localStorage.removeItem('findter_pricing_group');
     setCustomerType('new');
-    seedUnder50kProductCount();
+    activateUnder50kTrialImmediately();
   }
 })();
 </script>

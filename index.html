@@ -1116,7 +1116,7 @@
                         '<p class="text-[13px] text-amber-700 leading-relaxed mb-3">' +
                             'Such a huge catalog requires a more powerful server to keep everything running smoothly. Otherwise, your products won\'t be indexed or shown on your storefront. Activate your free 14-day trial to get better experience!' +
                         '</p>' +
-                        '<button onclick="window.location.href=\'pricing.html?ctype=new_over50k\'" class="bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors shadow-sm inline-flex items-center gap-2">' +
+                        '<button onclick="window.location.href=\'pricing.html\'" class="bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors shadow-sm inline-flex items-center gap-2">' +
                             '<i class="fas fa-rocket text-xs"></i>' +
                             'Activate Free Trial' +
                         '</button>' +
@@ -2183,9 +2183,9 @@
         var PRICING_BANNER_CONTENT = {
             group1: {
                 icon: 'fa-gift',
-                title: 'A Special Thank You: Exclusive Pricing Inside',
+                title: 'Pricing update - Special discount only for you',
                 introListHTML:
-                    '<p class="text-[13px] text-[#303030] leading-relaxed mb-3">We\'ve kept Findter <strong>free for almost a year</strong>, serving <strong>2,000+ stores</strong> at no profit to us. As one of our early supporters, we\'d like to thank you with <strong>exclusive pricing</strong> before paid plans roll out.</p>' +
+                    '<p class="text-[13px] text-[#303030] leading-relaxed mb-3">We\'ve kept Findter <strong>free for almost a year</strong>, serving <strong>2,000+ stores</strong>. With this growth, we now introduce paid plans to cover costs and keep improving the app.</p>' +
                     '<ul class="mb-4 space-y-1.5">' +
                         '<li class="text-[13px] text-[#303030]">✓ <strong>Special offer</strong>: discount code <strong>THANKYOU</strong> if you pay during:</li>' +
                         '<li class="text-[13px] text-[#303030] pl-4">20-23 Jul: <strong>45%</strong> off monthly / <strong>50%</strong> off yearly</li>' +
@@ -2211,15 +2211,9 @@
 
         var LIMIT_BANNER_CONTENT = {
             group1: {
-                bodyHTML: '<p class="text-[13px] text-[#303030] leading-relaxed mb-3">Your catalog currently contains over <strong>300</strong> products. To keep your store running smoothly at no cost, <strong>5%</strong> of your visible products will be hidden each day until only <strong>300</strong> remain. Upgrade to keep your full catalog visible.</p>',
+                bodyHTML: '<p class="text-[13px] text-[#303030] leading-relaxed mb-3">Your catalog currently contains over <strong>300</strong> products. If you don\'t upgrade, your catalog will be gradually reduced <strong>5%</strong> of your visible products until only <strong>300</strong> remain.</p>',
                 ctaMessage: 'I want to ask about Store limit reached'
             }
-        };
-
-        var ALMOST_LIMIT_CONTENT = {
-            currentProducts: 2901,
-            planLimit: 3000,
-            ctaMessage: 'I want to ask about my product limit'
         };
 
         function showBanner(el) {
@@ -2284,18 +2278,10 @@
             showBanner(almostBanner);
 
             almostBody.innerHTML =
-                '<p class="text-[13px] text-[#303030] leading-relaxed mb-3">Your store now has <strong>' + ALMOST_LIMIT_CONTENT.currentProducts + '</strong> / <strong>' + ALMOST_LIMIT_CONTENT.planLimit + '</strong> products. New products added beyond this limit won\'t appear on your storefront. Upgrade to continue scaling.</p>' +
+                '<p class="text-[13px] text-[#303030] leading-relaxed mb-3">Your store had reach 90% of current product limit. Upgrade anytime to keep growing without limits. See <a href="#" class="font-bold text-blue-600 underline hover:text-blue-800">guideline here</a></p>' +
                 '<div class="flex items-center gap-3">' +
-                    '<button type="button" id="almost-limit-contact-btn" class="bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-semibold hover:bg-[#4a4a4a] transition-colors inline-flex items-center gap-2">Contact us</button>' +
                     '<button type="button" id="almost-limit-upgrade-btn" class="border border-gray-300 bg-white text-[#303030] rounded-[6px] px-4 py-2 text-[13px] font-semibold hover:bg-gray-50 transition-colors inline-flex items-center gap-2">Upgrade now</button>' +
                 '</div>';
-
-            var contactBtn = document.getElementById('almost-limit-contact-btn');
-            if (contactBtn) {
-                contactBtn.addEventListener('click', function() {
-                    openChatWithMessage(ALMOST_LIMIT_CONTENT.ctaMessage);
-                });
-            }
 
             var upgradeBtn = document.getElementById('almost-limit-upgrade-btn');
             if (upgradeBtn) {
@@ -2488,6 +2474,12 @@
             updateGroupButtonHighlight(group);
             updateAllBanners();
             localStorage.setItem('findter_pricing_group', group);
+
+            // Reach Limit is a Group 1-only scenario; hide the dev-testing trigger for other groups.
+            if (reachLimitBtn) {
+                reachLimitBtn.classList.toggle('hidden', group !== 'group1');
+                if (group !== 'group1') hideBanner(document.getElementById('limit-reached-banner'));
+            }
 
             // Hide the plan-update banner entirely until the popup has been closed.
             if (pricingNoticeBanner) {
