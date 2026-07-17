@@ -1563,13 +1563,11 @@ function initCurrentPlanBanner(){
     if(fillEl){fillEl.style.width=pct+'%';fillEl.style.background=exceeded?'#f59e0b':'var(--teal)';}
     if(lblEl) lblEl.textContent=`${used.toLocaleString()} / ${planLim.toLocaleString()} products`;
     if(warnEl){
-      const trialActive=isCurrentPlanOnTrial();
-      if(exceeded&&!trialActive){
-        const rec=planForCount(used);
-        const lim=PLAN_LIMITS[USER_PLAN];
-        warnEl.textContent=customerType==='returning'
-          ?`⚠ To keep your store working well at no cost, your catalog shrinks 5% daily until only 300 remain. Upgrade to keep all visible`
-          :`⚠ Your catalog exceeds the free plan limit. Upgrade to show all your products.`;
+      // Only warn once there's no trial path left: a 'returning' customer never gets one,
+      // and a 'new'/'new_over50k' customer only loses it after End Trial / End Plan.
+      const noTrialPathLeft=customerType==='returning'||trialEnded;
+      if(exceeded&&noTrialPathLeft){
+        warnEl.textContent=`⚠ To keep your store working well at no cost, your catalog shrinks 5% daily until only 300 remain. Upgrade to keep all visible`;
         warnEl.style.display='block';
       } else { warnEl.style.display='none'; }
     }
