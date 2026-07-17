@@ -866,6 +866,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         
         // ========== STATE MANAGEMENT ==========
+        var over50kBannerDismissed = false;
         const AppState = {
             isIndexing: true,
             indexingComplete: false,
@@ -1102,8 +1103,11 @@
         }
 
         function getOver50kUpgradeBannerHTML() {
-            return '<div class="unified-status-banner complete-state rounded-lg p-4 border border-amber-300">' +
-                '<div class="flex items-start gap-3">' +
+            return '<div class="unified-status-banner complete-state rounded-lg p-4 border border-amber-300 relative">' +
+                '<button onclick="window.dismissOver50kBanner()" class="absolute top-3 right-3 text-amber-500 hover:text-amber-800 hover:bg-amber-200 rounded p-1 transition-colors" aria-label="Dismiss">' +
+                    '<i class="fas fa-times text-sm"></i>' +
+                '</button>' +
+                '<div class="flex items-start gap-3 pr-6">' +
                     '<div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0 mt-0.5">' +
                         '<i class="fas fa-box-open text-sm"></i>' +
                     '</div>' +
@@ -1128,7 +1132,7 @@
 
             if (!AppState.indexingComplete) {
                 bannerHTML = getSimpleIndexingBannerHTML();
-            } else if (currentPricingGroup === 'group3plus') {
+            } else if (currentPricingGroup === 'group3plus' && !over50kBannerDismissed) {
                 bannerHTML = getOver50kUpgradeBannerHTML();
             } else if (!AppState.firstEnableDone) {
                 bannerHTML = getFirstTimeCompleteBannerHTML();
@@ -1290,6 +1294,11 @@
                 return;
             }
             openEditorWithAutoEnable();
+        };
+
+        window.dismissOver50kBanner = function() {
+            over50kBannerDismissed = true;
+            updateAllBanners();
         };
 
         function openEditorWithAutoEnable() {
@@ -2475,6 +2484,7 @@
 
         function resetPricingFlowState(group) {
             currentPricingGroup = group;
+            over50kBannerDismissed = false;
             updateGroupButtonHighlight(group);
             updateAllBanners();
             localStorage.setItem('findter_pricing_group', group);

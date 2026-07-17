@@ -854,7 +854,7 @@ function getTrialDaysLeft(){
 function trialDaysLeftNoticeHTML(){
   const days=getTrialDaysLeft();
   if(days==null) return '';
-  return `<p style="font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r);padding:7px 10px;margin-top:.6rem;display:flex;align-items:center;gap:6px"><i class="ti ti-clock"></i> Trial expires in ${days} day${days===1?'':'s'}</p>`;
+  return `<p style="font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r);padding:7px 10px;margin-bottom:.6rem;display:flex;align-items:center;gap:6px"><i class="ti ti-clock"></i> Trial expires in ${days} day${days===1?'':'s'}</p>`;
 }
 
 function isHighTierPlan(plan){
@@ -869,6 +869,12 @@ function planFitStatus(plan){
   if(storeProductCount>0&&storeProductCount>hi) return 'too_small';
   if(storeProductCount>0&&isHighTierPlan(plan)&&storeProductCount<lo) return 'oversized';
   return 'fits';
+}
+
+function tooSmallNoticeHTML(plan){
+  return planFitStatus(plan)==='too_small'
+    ?`<p style="font-size:11px;color:#b45309;margin-top:6px;text-align:center;line-height:1.4">Your current active product count is higher than this plan's limit.</p>`
+    :'';
 }
 
 /* HELPERS */
@@ -1070,22 +1076,19 @@ function renderSelCard(){
   } else if(isCurrent){
     cta=`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`;
   } else if(trialEligible){
-    const fit=planFitStatus(displayPlan);
-    const tooSmall=fit==='too_small';
-    const fitNotice=tooSmall
-      ?`<p style="font-size:11px;color:#dc2626;margin-top:6px;text-align:center;line-height:1.4">Your current active product count is higher than this plan's limit.</p>`
-      :'';
-    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-rocket"></i> Start 14-day trial</button>${fitNotice}`;
+    const tooSmall=planFitStatus(displayPlan)==='too_small';
+    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-rocket"></i> Start 14-day trial</button>${tooSmallNoticeHTML(displayPlan)}`;
   } else if(isUp){
-    cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>`;
+    // Upgrading is always allowed, trial or not — only the plan-fit notice applies (never disabled).
+    cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>${tooSmallNoticeHTML(displayPlan)}`;
   } else {
-    // Downgrading to a plan smaller than the real catalog stays clickable — the customer may
-    // genuinely accept trimming their catalog, or accept the shrink-5%/day consequence shown
-    // on the Current Plan banner once they land there.
-    const fitNotice=planFitStatus(displayPlan)==='too_small'
-      ?`<p style="font-size:11px;color:#dc2626;margin-top:6px;text-align:center;line-height:1.4">Your current active product count is higher than this plan's limit.</p>`
-      :'';
-    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>${fitNotice}`;
+    // While an active trial is running, only moving up is allowed — downgrading is blocked
+    // entirely. Once the trial has ended (or was never eligible), downgrading stays clickable
+    // even when the target plan is smaller than the real catalog — the customer may genuinely
+    // accept trimming their catalog, or accept the shrink-5%/day consequence shown on the
+    // Current Plan banner once they land there.
+    const duringTrial=isCurrentPlanOnTrial();
+    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"${duringTrial?' disabled':''}><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>${tooSmallNoticeHTML(displayPlan)}`;
   }
 
   return `
@@ -1418,6 +1421,7 @@ function openPlanModal(targetPlan){
     const suffix=isAnn?'/yr':'/mo';
     const trial=fromP.price===0&&customerType==='new'&&!trialEnded?`<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ Your 14-day free trial starts today — no charge until it ends.</p>`:'';
     const body=`
+      ${trialDaysLeftNoticeHTML()}
       <div style="background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:.5rem">
         <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
@@ -1429,7 +1433,7 @@ function openPlanModal(targetPlan){
           <span style="font-size:13px;font-weight:600;color:var(--txt)">Total</span>
           <span style="font-size:18px;font-weight:700;color:var(--txt)">$${raw.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
         </div>
-      </div>${trial}${trialDaysLeftNoticeHTML()}`;
+      </div>${trial}`;
     openModal(`Upgrade to ${toP.name}`,body,'Process to Payment →',false,()=>applyPlanChange(targetPlan));
   } else {
     const note='<p>Your current plan stays active until the end of the billing period.</p>';
@@ -1446,6 +1450,7 @@ function convertTrialToPaid(){
   const raw=isAnn?toP.annPx*12:toP.price;
   const suffix=isAnn?'/yr':'/mo';
   const body=`
+    ${trialDaysLeftNoticeHTML()}
     <div style="background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:.5rem">
       <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
       <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--txt2)">
@@ -1458,7 +1463,7 @@ function convertTrialToPaid(){
         <span style="font-size:18px;font-weight:700;color:var(--txt)">$${raw.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ You'll be charged today and continue on the ${toP.name} plan right away — no need to wait for your trial to end.</p>${trialDaysLeftNoticeHTML()}`;
+    <p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ You'll be charged today and continue on the ${toP.name} plan right away — no need to wait for your trial to end.</p>`;
   openModal(`Upgrade to ${toP.name}`,body,'Process to Payment →',false,()=>{
     trialEnded=true;
     applyPlanChange(plan);
