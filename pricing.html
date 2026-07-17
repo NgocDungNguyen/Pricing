@@ -1079,12 +1079,13 @@ function renderSelCard(){
   } else if(isUp){
     cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>`;
   } else {
-    const fit=planFitStatus(displayPlan);
-    const tooSmall=fit==='too_small';
-    const fitNotice=tooSmall
+    // Downgrading to a plan smaller than the real catalog stays clickable — the customer may
+    // genuinely accept trimming their catalog, or accept the shrink-5%/day consequence shown
+    // on the Current Plan banner once they land there.
+    const fitNotice=planFitStatus(displayPlan)==='too_small'
       ?`<p style="font-size:11px;color:#dc2626;margin-top:6px;text-align:center;line-height:1.4">Your current active product count is higher than this plan's limit.</p>`
       :'';
-    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>${fitNotice}`;
+    cta=`<button class="card-cta downgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-down-right"></i> Downgrade to ${p.name}</button>${fitNotice}`;
   }
 
   return `
