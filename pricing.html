@@ -1069,9 +1069,10 @@ function renderSelCard(){
   } else if(isCurrent){
     cta=`<button class="card-cta noop" disabled><i class="ti ti-check"></i> You're on this plan</button>`;
   } else if(trialEligible){
-    const tooSmall=planFitStatus(displayPlan)==='too_small';
+    // Starting a trial always stays clickable, even when the plan is smaller than the real
+    // catalog — only the plan-fit notice applies (never disabled).
     const label=customerType==='new_over50k'?'Start Trial Now':'Start 14-day trial';
-    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"${tooSmall?' disabled':''}><i class="ti ti-rocket"></i> ${label}</button>${tooSmallNoticeHTML(displayPlan)}`;
+    cta=`<button class="card-cta upgrade" onclick="startRegularTrial('${displayPlan}')"><i class="ti ti-rocket"></i> ${label}</button>${tooSmallNoticeHTML(displayPlan)}`;
   } else if(isUp){
     // Upgrading is always allowed, trial or not — only the plan-fit notice applies (never disabled).
     cta=`<button class="card-cta upgrade" onclick="openPlanModal('${displayPlan}')"><i class="ti ti-arrow-up-right"></i> Upgrade to ${p.name}</button>${tooSmallNoticeHTML(displayPlan)}`;
@@ -1568,7 +1569,9 @@ function initCurrentPlanBanner(){
       // and a 'new'/'new_over50k' customer only loses it after End Trial / End Plan.
       const noTrialPathLeft=customerType==='returning'||trialEnded;
       if(exceeded&&noTrialPathLeft){
-        warnEl.textContent=`⚠ To keep your store working well at no cost, your catalog shrinks 5% daily until only 300 remain. Upgrade to keep all visible`;
+        warnEl.textContent=customerType==='returning'
+          ?`⚠ To keep your store working well at no cost, your catalog shrinks 5% daily until only 300 remain. Upgrade to keep all visible`
+          :`⚠ Your catalog exceeds the free plan limit. Upgrade to show all your products.`;
         warnEl.style.display='block';
       } else { warnEl.style.display='none'; }
     }
@@ -1938,12 +1941,14 @@ renderSubBtns();
   //
   // Group 3 < 50k: the trial for the matching plan is activated immediately on arrival — no
   // manual "Start 14-day trial" click needed for this group.
+  //
+  // This flag is NOT consumed/cleared here — it stays sticky across reloads and revisits of
+  // this page, reflecting whichever group was last selected on the Homepage, until a different
+  // group is chosen there (which overwrites it).
   const group=localStorage.getItem('findter_pricing_group');
   if(group==='group3plus'){
-    localStorage.removeItem('findter_pricing_group');
     setCustomerType('new_over50k');
   } else if(group==='group3'){
-    localStorage.removeItem('findter_pricing_group');
     setCustomerType('new');
     activateUnder50kTrialImmediately();
   }
