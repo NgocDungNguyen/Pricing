@@ -850,6 +850,19 @@ function trialDaysLeftNoticeHTML(){
   return `<p style="font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--r);padding:7px 10px;margin-bottom:.6rem;display:flex;align-items:center;gap:6px"><i class="ti ti-clock"></i> Trial expires in ${days} day${days===1?'':'s'}</p>`;
 }
 
+/* Billing-timing note shown in the Upgrade / Discount code modals — matches Shopify's actual
+   billing policy: choosing a paid plan while a trial is still running doesn't charge you right
+   away, the first charge only happens once the trial period ends. */
+function billingTimingNoticeHTML(planName){
+  if(isCurrentPlanOnTrial()){
+    return `<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ You'll continue on the ${planName} plan right away. Your first charge will be applied after your trial period ends</p>`;
+  }
+  if(USER_PLAN==='free'&&customerType==='new'&&!trialEnded){
+    return `<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ Your 14-day free trial starts today — no charge until it ends.</p>`;
+  }
+  return '';
+}
+
 function isHighTierPlan(plan){
   return PLAN_ORDER.indexOf(plan) >= PLAN_ORDER.indexOf('professional');
 }
@@ -1411,7 +1424,7 @@ function openPlanModal(targetPlan){
     const isAnn=billingMode==='annual'&&toP.annPx;
     const raw=isAnn?toP.annPx*12:toP.price;
     const suffix=isAnn?'/yr':'/mo';
-    const trial=fromP.price===0&&customerType==='new'&&!trialEnded?`<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ Your 14-day free trial starts today — no charge until it ends.</p>`:'';
+    const trial=billingTimingNoticeHTML(toP.name);
     const body=`
       <div style="background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:.5rem">
         <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
@@ -1455,7 +1468,7 @@ function convertTrialToPaid(){
         <span style="font-size:18px;font-weight:700;color:var(--txt)">$${raw.toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted)">${suffix}</span></span>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ You'll be charged today and continue on the ${toP.name} plan right away — no need to wait for your trial to end.</p>`;
+    ${billingTimingNoticeHTML(toP.name)}`;
   openModal(`Upgrade to ${toP.name}`,body,'Process to Payment →',false,()=>{
     trialEnded=true;
     applyPlanChange(plan);
@@ -1869,9 +1882,7 @@ function renderDiscSummary(pct){
   const final=raw*(1-pct/100);
   const suffix=isAnn?'/yr':'/mo';
   const saving=(raw-final).toFixed(2);
-  const trial=USER_PLAN==='free'&&customerType==='new'&&!trialEnded
-    ?`<p style="font-size:12px;color:var(--txt2);margin-top:.5rem">✓ Your 14-day free trial starts today — no charge until it ends.</p>`
-    :'';
+  const trial=billingTimingNoticeHTML(plan.name);
   document.getElementById('disc-summary-section').innerHTML=`
     <div style="margin-top:14px;padding:12px 14px;background:var(--s1);border-radius:var(--r);border:1px solid var(--bdr)">
       <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px">Order summary</div>
