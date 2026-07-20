@@ -1051,8 +1051,8 @@
                 updateSearchSuggestionGuideStatus();
             }
 
-            if (e.key === 'findter_plan_status') {
-                updateCurrentPlanStatus();
+            if (e.key === 'findter_plan_status_by_group') {
+                updateCurrentPlanStatus(currentPricingGroup);
             }
         });
 
@@ -1305,15 +1305,15 @@
             enterprise: 'Enterprise'
         };
 
-        function updateCurrentPlanStatus() {
+        function updateCurrentPlanStatus(group) {
             var nameEl = document.getElementById('status-current-plan-name');
             var badgeEl = document.getElementById('status-current-plan-trial-badge');
             if (!nameEl || !badgeEl) return;
 
             var status = { plan: 'free', onTrial: false };
             try {
-                var stored = localStorage.getItem('findter_plan_status');
-                if (stored) status = JSON.parse(stored);
+                var all = JSON.parse(localStorage.getItem('findter_plan_status_by_group') || '{}');
+                if (all[group]) status = all[group];
             } catch (e) {}
 
             nameEl.textContent = PLAN_DISPLAY_NAMES[status.plan] || 'Free';
@@ -2152,7 +2152,6 @@
         updateGuideStep1Status();
         updateSearchSuggestionGuideStatus();
         updateFindterStatus();
-        updateCurrentPlanStatus();
         if (shouldCollapseOnboardingOnReload()) {
             collapseOnboardingGuide();
         }
@@ -2511,6 +2510,7 @@
             over50kBannerDismissed = false;
             updateGroupButtonHighlight(group);
             updateAllBanners();
+            updateCurrentPlanStatus(group);
             localStorage.setItem('findter_pricing_group', group);
 
             // Reach Limit is a Group 1-only scenario; hide the dev-testing trigger for other groups.

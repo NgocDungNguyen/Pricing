@@ -393,8 +393,15 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
     </div>
   </div>
 
-  <h1 class="pg-title">Pricing</h1>
-  <p class="pg-sub">Manage your pricing plan. Read more guidelines <strong><u>here</u></strong></p>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+    <div>
+      <h1 class="pg-title">Pricing</h1>
+      <p class="pg-sub">Manage your pricing plan. Read more guidelines <strong><u>here</u></strong></p>
+    </div>
+    <button onclick="window.location.href='index.html'" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:12.5px;font-weight:600;border-radius:8px;border:1.5px solid var(--bdr2);background:var(--s2);color:var(--txt2);cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0;transition:background .15s" onmouseover="this.style.background='var(--bdr)'" onmouseout="this.style.background='var(--s2)'">
+      <i class="ti ti-arrow-left"></i> Back to Homepage
+    </button>
+  </div>
 
   <!-- CURRENT PLAN BANNER -->
   <div class="cur-banner">
@@ -1600,10 +1607,14 @@ function initCurrentPlanBanner(){
 /* Lets the Homepage's "Findter App Status" card show the current plan without a shared JS
    context — it just reads this back out of localStorage on its own page load. */
 function persistPlanStatus(){
-  localStorage.setItem('findter_plan_status', JSON.stringify({
-    plan: USER_PLAN,
-    onTrial: isCurrentPlanOnTrial()
-  }));
+  // Keyed by whichever Homepage group is currently active (set in localStorage whenever a
+  // group button is clicked there) — each group's simulated plan status is tracked separately,
+  // so switching groups on the Homepage never shows another group's status by mistake.
+  const group=localStorage.getItem('findter_pricing_group')||'group2';
+  let all={};
+  try{ all=JSON.parse(localStorage.getItem('findter_plan_status_by_group')||'{}'); }catch(e){}
+  all[group]={ plan: USER_PLAN, onTrial: isCurrentPlanOnTrial() };
+  localStorage.setItem('findter_plan_status_by_group', JSON.stringify(all));
 }
 
 /* CUSTOMER TYPE */
