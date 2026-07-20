@@ -1593,6 +1593,17 @@ function initCurrentPlanBanner(){
     if(lblEl) lblEl.textContent=cur.limitLabel+' products';
     if(warnEl) warnEl.style.display='none';
   }
+
+  persistPlanStatus();
+}
+
+/* Lets the Homepage's "Findter App Status" card show the current plan without a shared JS
+   context — it just reads this back out of localStorage on its own page load. */
+function persistPlanStatus(){
+  localStorage.setItem('findter_plan_status', JSON.stringify({
+    plan: USER_PLAN,
+    onTrial: isCurrentPlanOnTrial()
+  }));
 }
 
 /* CUSTOMER TYPE */
