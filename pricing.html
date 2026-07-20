@@ -388,6 +388,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
         <button class="ctype-btn" id="ctype-new-over50k" onclick="setCustomerType('new_over50k')">Khách mới &gt; 50k</button>
         <button class="ctype-btn active" id="ctype-new" onclick="setCustomerType('new')">Khách mới &lt; 50k</button>
         <button class="ctype-btn" id="ctype-old" onclick="setCustomerType('returning')">Khách cũ</button>
+        <button class="ctype-btn" id="ctype-soft-launch" onclick="setCustomerType('soft_launch')">Khách Soft Launch</button>
       </div>
       <div id="ctype-sub-btns" style="display:flex;gap:6px"></div>
     </div>
@@ -830,7 +831,7 @@ let cardDiscountPct = 0;
 let pendingDiscPlan = null;
 let pendingDiscBill = null;
 let storeProductCount = 0;
-let customerType = 'new'; // 'new' | 'new_over50k' | 'returning'
+let customerType = 'new'; // 'new' | 'new_over50k' | 'returning' | 'soft_launch'
 let trialEnded = false;
 let regularTrial = { plan:null, active:false }; // currently active, unconverted trial (auto-activated or via a per-card "Start trial" click)
 
@@ -1585,11 +1586,13 @@ function initCurrentPlanBanner(){
     if(fillEl){fillEl.style.width=pct+'%';fillEl.style.background=exceeded?'#f59e0b':'var(--teal)';}
     if(lblEl) lblEl.textContent=`${used.toLocaleString()} / ${planLim.toLocaleString()} products`;
     if(warnEl){
-      // Only warn once there's no trial path left: a 'returning' customer never gets one,
-      // and a 'new'/'new_over50k' customer only loses it after End Trial / End Plan.
-      const noTrialPathLeft=customerType==='returning'||trialEnded;
+      // Only warn once there's no trial path left: 'returning'/'soft_launch' customers never
+      // get one, and a 'new'/'new_over50k' customer only loses it after End Trial / End Plan.
+      const noTrialPathLeft=customerType==='returning'||customerType==='soft_launch'||trialEnded;
       if(exceeded&&noTrialPathLeft){
-        warnEl.textContent=customerType==='returning'
+        // 'soft_launch' (Group 1's grandfathered early-access customers) gets the gradual
+        // 5%/day reduction message; everyone else gets the straightforward exceeded-limit one.
+        warnEl.textContent=customerType==='soft_launch'
           ?`⚠ To keep your store working well at no cost, your catalog shrinks 5% daily until only 300 remain. Upgrade to keep all visible`
           :`⚠ Your catalog exceeds the free plan limit. Upgrade to show all your products.`;
         warnEl.style.display='block';
@@ -1625,6 +1628,7 @@ function setCustomerType(type){
   document.getElementById('ctype-new-over50k').classList.toggle('active',type==='new_over50k');
   document.getElementById('ctype-new').classList.toggle('active',type==='new');
   document.getElementById('ctype-old').classList.toggle('active',type==='returning');
+  document.getElementById('ctype-soft-launch').classList.toggle('active',type==='soft_launch');
   renderDualCards();
   initCurrentPlanBanner();
   renderSubBtns();
@@ -1640,7 +1644,7 @@ function renderSubBtns(){
     const trialBtn=!trialEnded
       ?`<button class="ctype-sub-btn" onclick="endTrial()">End Trial</button>`:'';
     c.innerHTML=trialBtn+`<button class="ctype-sub-btn warn" onclick="endPlan()">End Plan</button>`;
-  } else if(customerType==='returning'){
+  } else if(customerType==='returning'||customerType==='soft_launch'){
     c.innerHTML=`<button class="ctype-sub-btn warn" onclick="endPlan()">End Plan</button>`;
   } else {
     c.innerHTML='';
@@ -1975,6 +1979,8 @@ renderSubBtns();
   // Group 3 < 50k: the trial for the matching plan is activated immediately on arrival — no
   // manual "Start 14-day trial" click needed for this group.
   //
+  // Group 1: maps to "Khách Soft Launch" — Group 1's grandfathered early-access customers.
+  //
   // This flag is NOT consumed/cleared here — it stays sticky across reloads and revisits of
   // this page, reflecting whichever group was last selected on the Homepage, until a different
   // group is chosen there (which overwrites it).
@@ -1984,6 +1990,8 @@ renderSubBtns();
   } else if(group==='group3'){
     setCustomerType('new');
     activateUnder50kTrialImmediately();
+  } else if(group==='group1'){
+    setCustomerType('soft_launch');
   }
 })();
 </script>
